@@ -3,7 +3,7 @@ const router = express.Router();
 
 const controller = require('../controller/fight.controller');
 
-router.get('/',controller.index);
+router.post('/one-way',controller.oneWayFight);
 
 
 module.exports = router;
