@@ -1,9 +1,9 @@
-import { View } from 'react-native';
+import { View, Text } from "react-native";
 
 export default function Profile(){
     return (
         <View>
-            Trang Profile
+            <Text>Welcome profile</Text>
         </View>
     )
 }

@@ -1,10 +1,14 @@
+import { View, Text, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-import { View } from 'react-native';
+export default function Home() {
+  const navigation = useNavigation();
 
-export default function Home(){
-    return (
-        <View>
-            Trang chu
-        </View>
-    )
+  return (
+    <View>
+      <TouchableOpacity onPress={() => navigation.navigate("TravellerInformation")}>
+        <Text>Go to Traveller Info</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }

@@ -1,9 +1,9 @@
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 export default function Explore(){
     return (
         <View>
-            Trang Explore xfsvsdv
+            <Text>Welcome explore</Text>
         </View>
     )
 }
