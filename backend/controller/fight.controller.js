@@ -1,5 +1,6 @@
 const Flight = require('../model/flights.model.js');
 const findOneWayFight = require('../helper/findOneWayFight');
+const bookingFlight = require("../helper/bookingFlight");
 
 // [POST] /flights/one-way
 module.exports.oneWayFight = async (req, res) => {
@@ -32,3 +33,21 @@ module.exports.oneWayFight = async (req, res) => {
 
    }
 }
+
+module.exports.booking = async (req, res) => {
+    try {
+        const result = await bookingFlight(req.body);
+        res.json({
+            status: true,          
+            message: "Đặt vé thành công!",
+            data: result
+        });
+    } catch (err) {
+        console.error(err);
+        res.json({
+            status: false,          
+            message: err.message
+        });
+    }
+};
+

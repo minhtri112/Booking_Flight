@@ -20,3 +20,6 @@ route(app);
 app.listen(PORT, () => {
   console.log(`Server đang chạy tại http://localhost:${PORT}`);
 });
+
+const cors = require("cors");
+app.use(cors());

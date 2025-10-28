@@ -5,5 +5,8 @@ const controller = require('../controller/fight.controller');
 
 router.post('/one-way',controller.oneWayFight);
 
+router.post('/booking', controller.booking);
+
+
 
 module.exports = router;

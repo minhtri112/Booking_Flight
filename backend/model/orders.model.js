@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema(
@@ -16,15 +15,14 @@ const orderSchema = new mongoose.Schema(
        total_price : Number,
        payment_method : String,
        contact_name : String,
-       baggage_option : {
-        type : String,
-        price : Number
+       baggage_option: {
+           type: { type: String, required: true },
+           price: { type: Number, required: true }
        }
     },
     { timestamps: true }
 );
 
 const Order = mongoose.model('Order', orderSchema, 'orders');
-
 
 module.exports = Order;
