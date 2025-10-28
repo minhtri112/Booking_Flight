@@ -8,8 +8,6 @@ module.exports.oneWayFight = async (req, res) => {
 
       const result = await findOneWayFight(from, to, dateFrom, dateTo);
 
-
-
       if(filter){
          const {stops,time,airline} = filter;
          console.log(time);

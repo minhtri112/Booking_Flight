@@ -8,12 +8,15 @@ import Payment from '../pages/Payment';
 import BookingSuccess from '../pages/BookingSuccess';
 import BookingDetail from '../pages/BookingDetail';
 
-const Stack = createStackNavigator();
+import {RootStackParamList} from '../types/types';
+
+const Stack = createStackNavigator<RootStackParamList>();
+
 
 export default function ScreenNavigation() {
     return (
     
-    <Stack.Navigator   >
+    <Stack.Navigator>
       <Stack.Screen 
         name="Tab" 
         component={TabNavigation} 
