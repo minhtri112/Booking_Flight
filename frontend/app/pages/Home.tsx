@@ -1,15 +1,19 @@
-import { View, Text, StyleSheet, ScrollView, Image, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plane, Search } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+
+import { TypeNavigationProp } from '../types/types';
 
 export default function Home() {
+  const navigation = useNavigation<TypeNavigationProp>();
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -29,14 +33,10 @@ export default function Home() {
         </View>
 
         {/* Search */}
-        <Pressable>
+        <Pressable  onPress={() => {navigation.navigate('RoundTripFlight')}}>
           <View style={styles.searchContainer}>
             <Search size={20} color="#9E9E9E" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Find a flight"
-              placeholderTextColor="#9E9E9E"
-            />
+            <Text style={styles.searchText}>Find a flight</Text>
           </View>
         </Pressable>
 
@@ -162,6 +162,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#212121',
+  },
+  searchText : {
+    fontSize: 16,
+    color: '#9E9E9E',
   },
   sectionTitle: {
     fontSize: 20,

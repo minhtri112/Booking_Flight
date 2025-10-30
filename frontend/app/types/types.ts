@@ -9,6 +9,9 @@ export type RootStackParamList = {
   Payment: undefined;
   BookingSuccess: undefined;
   BookingDetail: undefined;
+  RoundTripFlight: undefined;
+  OneTripFlight: undefined;
+  MultiCityTripFlight: undefined;
 };
 
 
@@ -19,3 +22,12 @@ export type RootTabParamList = {
 };
 
 export type TypeNavigationProp = StackNavigationProp<RootStackParamList, "Tab">;
+
+
+export type Airport = {
+  _id : string,
+  airport_code : string,
+  airport_name : string,
+  city : string,
+  country : string,
+}

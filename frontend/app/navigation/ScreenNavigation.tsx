@@ -4,68 +4,89 @@ import TravellerInformation from '../pages/TravellerInformation';
 import BaggageInformation from '../pages/BaggageInformation';
 import Seat from '../pages/Seat';
 import SeatSelection from '../pages/SeatSelection';
-import Payment from '../pages/Payment'; 
+import Payment from '../pages/Payment';
 import BookingSuccess from '../pages/BookingSuccess';
 import BookingDetail from '../pages/BookingDetail';
+import RoundTripFlight from "../pages/RoundTripFlight";
+import OneTripFlight from "../pages/OneTripFlight";
+import MultiCityTripFlight from "../pages/MultiCityTripFlight";
 
-import {RootStackParamList} from '../types/types';
+import { RootStackParamList } from '../types/types';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 
 export default function ScreenNavigation() {
-    return (
-    
+  return (
+
     <Stack.Navigator>
-      <Stack.Screen 
-        name="Tab" 
-        component={TabNavigation} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="Tab"
+        component={TabNavigation}
+        options={{ headerShown: false }}
       />
       {/* Các màn hình con */}
-      <Stack.Screen 
-        name="TravellerInformation" 
-        component={TravellerInformation} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="TravellerInformation"
+        component={TravellerInformation}
+        options={{ headerShown: false }}
       />
 
-      <Stack.Screen 
-        name="BaggageInformation" 
-        component={BaggageInformation} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="BaggageInformation"
+        component={BaggageInformation}
+        options={{ headerShown: false }}
       />
 
-      <Stack.Screen 
-        name="Seat" 
-        component={Seat} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="Seat"
+        component={Seat}
+        options={{ headerShown: false }}
       />
 
-      <Stack.Screen 
-        name="SeatSelection" 
-        component={SeatSelection} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="SeatSelection"
+        component={SeatSelection}
+        options={{ headerShown: false }}
       />
 
-      <Stack.Screen 
-        name="Payment" 
-        component={Payment} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="Payment"
+        component={Payment}
+        options={{ headerShown: false }}
       />
 
-       <Stack.Screen 
-        name="BookingSuccess" 
-        component={BookingSuccess} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="BookingSuccess"
+        component={BookingSuccess}
+        options={{ headerShown: false }}
       />
 
-      <Stack.Screen 
-        name="BookingDetail" 
-        component={BookingDetail} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="BookingDetail"
+        component={BookingDetail}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="RoundTripFlight"
+        component={RoundTripFlight}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="OneTripFlight"
+        component={OneTripFlight}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="MultiCityTripFlight"
+        component={MultiCityTripFlight}
+        options={{ headerShown: false }}
       />
 
 
     </Stack.Navigator>
-    );
+  );
 }
