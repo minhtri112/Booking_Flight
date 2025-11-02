@@ -7,8 +7,9 @@ const flightSchema = new mongoose.Schema(
         arrival_airport_code : String,
         departure_time: Date,
         arrival_time: Date,
+        seat_layout : [{seat_number : String,value : Number,class : String, status : Boolean}],
         duration_minutes : Number,
-        airplane_id : String,
+        airplane_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Airplane' },
         ticket_price: Number
     },
     { timestamps: true }

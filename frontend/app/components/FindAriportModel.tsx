@@ -23,8 +23,8 @@ interface LocationModalProps {
 export default function FindAirportModal({ visible, onClose, title, currentFrom, currentTo, setCurrentFrom, setCurrentTo }: LocationModalProps) {
 
   const [airports, setAirports] = useState<Airport[]>([]);
-  const [searchKeyFrom, setKeyFrom] = useState(currentFrom);
-  const [searchKeyTo, setKeyTo] = useState(currentTo);
+  const [searchKeyFrom, setKeyFrom] = useState(currentFrom !== 'FROM' ? currentFrom : '');
+  const [searchKeyTo, setKeyTo] = useState(currentTo !== 'TO' ? currentTo : '');
   const [selectedAirportFrom, setSelectedAirportFrom] = useState(false);
 
   const searchAirports = async (value: string) => {
@@ -36,12 +36,7 @@ export default function FindAirportModal({ visible, onClose, title, currentFrom,
     }
   };
 
-
   
-
-
-
-
   const handleSelectAirport = (airport: Airport) => {
     if(!selectedAirportFrom){
       setKeyFrom(airport.airport_code + "-" +  airport.airport_name);

@@ -1,3 +1,7 @@
+import Toast from 'react-native-toast-message';
+import {toastConfig} from '../components/Alter';
+
+
 import { createStackNavigator } from '@react-navigation/stack';
 import { TabNavigation } from "./TabNavigation";
 import TravellerInformation from '../pages/TravellerInformation';
@@ -10,15 +14,17 @@ import BookingDetail from '../pages/BookingDetail';
 import RoundTripFlight from "../pages/RoundTripFlight";
 import OneTripFlight from "../pages/OneTripFlight";
 import MultiCityTripFlight from "../pages/MultiCityTripFlight";
+import SearchFlight from '../pages/SearchFlight';
 
 import { RootStackParamList } from '../types/types';
+import TravellerOptions from '../pages/TravellerOptions';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 
 export default function ScreenNavigation() {
   return (
-
+    <>
     <Stack.Navigator>
       <Stack.Screen
         name="Tab"
@@ -86,7 +92,22 @@ export default function ScreenNavigation() {
         options={{ headerShown: false }}
       />
 
+      <Stack.Screen
+        name="TravellerOptions"
+        component={TravellerOptions}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="SearchFlight"
+        component={SearchFlight}
+        options={{ headerShown: false }} 
+      />
 
     </Stack.Navigator>
+
+    <Toast config={toastConfig} />
+    
+    </>
   );
 }

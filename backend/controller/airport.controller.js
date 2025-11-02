@@ -2,6 +2,7 @@ const Airport = require("../model/airports.model");
 
 // [GET] /airports/search
 module.exports.getAirportsByName = async (req, res) => {
+    console.log("Query params:", req.query);
     try{
         const key = req.query.key;
         const records = await Airport.find(
@@ -13,8 +14,11 @@ module.exports.getAirportsByName = async (req, res) => {
         })
     }
     catch(err){
+        console.error("DB ERROR", err);
         res.status(500).json({
             message : "Internal server error"
         })
     }
 };
+
+

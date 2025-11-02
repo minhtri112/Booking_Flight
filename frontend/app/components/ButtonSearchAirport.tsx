@@ -9,7 +9,7 @@ type Props = {
 
 export default function ButtonSearchAirport({ textName, Icon, onPress }: Props) {
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity style = {{flex : 1}}  onPress={onPress}>
             <View style={styles.inputWrapper}>
                 <Icon size={20} color="#666" style={styles.inputIcon} />
                 <Text style={styles.text}>{textName}</Text>
@@ -25,7 +25,6 @@ const styles = StyleSheet.create({
         fontWeight: '500'
     },
     inputWrapper: {
-        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         marginVertical: 3,

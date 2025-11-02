@@ -5,27 +5,49 @@ import { useNavigation } from 'expo-router';
 import { TypeNavigationProp } from '../types/types';
 import { useState } from 'react';
 
-
 import ButtonSearchAirport from '../components/ButtonSearchAirport';
 import SwapButton from '../components/SwapButton';
 import ButtonCalendar from '../components/ButtonCalendar';
 import ButtonTypeTrip from '../components/ButtonTypeTrip';
 import FindAriportModel from '../components/FindAriportModel';
+import { showError } from '../components/Alter';
 
+import { useDispatch } from 'react-redux';
+import {addAirport} from '../redux/ordersSlice';
 
 export default function FlightSearchScreen() {
     const navigation = useNavigation<TypeNavigationProp>();
     const tripType = 'Round-trip';
-    const [visible, setVisible] = useState(false);
-    const [currentFrom, setCurrentFrom] = useState('');
-    const [currentTo, setCurrentTo] = useState('');
+    const [visibleAirport, setVisibleAirport] = useState(false);
+    const [currentFrom, setCurrentFrom] = useState('FROM');
+    const [currentTo, setCurrentTo] = useState('TO');
+    const [selectedDateFrom, setSelectedDateFrom] = useState<Date | null>(new Date());
+    const [selectedDateTo, setSelectedDateTo] = useState<Date | null>(new Date());
+    const dispatch = useDispatch();
+
+
+
+    const handleNextPress = () => {
+        if (!currentFrom || currentFrom === 'FROM' || !currentTo || currentTo === 'TO') {
+            showError("Please fill in all required fields!");
+            return;
+        }
+        navigation.navigate("TravellerOptions");
+        dispatch(addAirport({
+            from: currentFrom,
+            to: currentTo,
+            dateFrom: selectedDateFrom?.toISOString(),
+            dateTo: selectedDateTo?.toISOString(),
+            type_trip: tripType
+        }));
+    }
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.closeButton}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
                         <X size={24} color="#000" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Flight</Text>
@@ -40,28 +62,49 @@ export default function FlightSearchScreen() {
                 <View style={styles.formContainer}>
 
                     <View style={styles.locationContainer}>
-                        <ButtonSearchAirport textName={currentFrom} Icon={Plane} onPress={() => setVisible(true)} />
+                        <ButtonSearchAirport textName={currentFrom} Icon={Plane} onPress={() => setVisibleAirport(true)} />
                         <SwapButton />
-                        <ButtonSearchAirport textName={currentTo} Icon={PlaneLanding} onPress={() => setVisible(true)} />
+                        <ButtonSearchAirport textName={currentTo} Icon={PlaneLanding} onPress={() => setVisibleAirport(true)} />
                     </View>
 
                     <View style={styles.dateContainer}>
-                        <ButtonCalendar textCalendar="Fri,Jul 14" />
-                        <ButtonCalendar textCalendar="Fri,Jul 21" />
+                        <ButtonCalendar
+                            textCalendar={selectedDateFrom
+                                ? selectedDateFrom.toLocaleDateString('en-US', {
+                                    weekday: 'short',
+                                    month: 'short',
+                                    day: 'numeric',
+                                })
+                                : "Depart"}
+                            date={selectedDateFrom}
+                            setDate={setSelectedDateFrom}
+                        />
+
+                        <ButtonCalendar
+                            textCalendar={selectedDateTo
+                                ? selectedDateTo.toLocaleDateString('en-US', {
+                                    weekday: 'short',
+                                    month: 'short',
+                                    day: 'numeric',
+                                })
+                                : "Return"}
+                            date={selectedDateTo}
+                            setDate={setSelectedDateTo}
+                        />
                     </View>
 
                 </View>
 
             </ScrollView>
 
-            <TouchableOpacity style={styles.searchButton}>
-                <Text style={styles.searchButtonText}>Search flights</Text>
+            <TouchableOpacity style={styles.searchButton} onPress={handleNextPress}>
+                <Text style={styles.searchButtonText}>Next</Text>
             </TouchableOpacity>
 
 
             <FindAriportModel
-                visible={visible}
-                onClose={() => setVisible(false)}
+                visible={visibleAirport}
+                onClose={() => setVisibleAirport(false)}
                 title="Where from?"
                 currentFrom={currentFrom}
                 currentTo={currentTo}
@@ -69,7 +112,10 @@ export default function FlightSearchScreen() {
                 setCurrentTo={setCurrentTo}
             />
 
+
+
         </SafeAreaView>
+
     );
 }
 

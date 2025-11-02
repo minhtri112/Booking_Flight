@@ -12,6 +12,8 @@ export type RootStackParamList = {
   RoundTripFlight: undefined;
   OneTripFlight: undefined;
   MultiCityTripFlight: undefined;
+  TravellerOptions: undefined;
+  SearchFlight: undefined;
 };
 
 
@@ -25,9 +27,34 @@ export type TypeNavigationProp = StackNavigationProp<RootStackParamList, "Tab">;
 
 
 export type Airport = {
-  _id : string,
-  airport_code : string,
-  airport_name : string,
-  city : string,
-  country : string,
+  _id: string,
+  airport_code: string,
+  airport_name: string,
+  city: string,
+  country: string,
+}
+
+
+export type FlightItem = {
+  _id: string,
+  departure_airport_code: string,
+  arrival_airport_code: string,
+  departure_time: string,
+  arrival_time: string,
+  duration_minutes: number,
+  airplane_id: {
+    _id: string,
+    airline_name: string,
+  },
+  ticket_price: number,
+}
+
+export type Flight = {
+  path: [
+    FlightItem
+  ],
+  totalStops: number,
+  totalPrice: number,
+  totalTime: string,
+  airline: string,
 }
