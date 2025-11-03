@@ -1,182 +1,212 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { CheckCircle2, ArrowLeftRight } from 'lucide-react-native';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+  ScrollView,
+  SafeAreaView,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { CheckCircle2, ArrowLeftRight } from "lucide-react-native";
+import axios from "axios";
 
 export default function BookingSuccess() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const bookingId = params.bookingId as string | undefined;
+
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // ⚠️ Nếu chạy trên iOS thật hoặc simulator Xcode, đổi localhost thành IP LAN (VD: 192.168.x.x)
+  const BASE_URL = "http://localhost:3000";
+
+  useEffect(() => {
+    const bookingParam = params.bookingData
+      ? JSON.parse(decodeURIComponent(params.bookingData as string))
+      : null;
+
+    if (bookingParam) {
+      setBooking(bookingParam);
+      setLoading(false);
+      return;
+    }
+
+    if (bookingId) {
+      const fetchBooking = async () => {
+        try {
+          const res = await axios.get(`${BASE_URL}/api/flights/booking/${bookingId}`);
+          if (res.data.status && res.data.booking) {
+            setBooking(res.data.booking);
+          } else {
+            Alert.alert("Error", res.data.message || "Booking not found");
+          }
+        } catch (err: any) {
+          console.error("Booking fetch error:", err.message);
+          Alert.alert("Error", err.response?.data?.message || "Network error");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBooking();
+    } else {
+      setLoading(false);
+      Alert.alert("Error", "Missing booking data");
+    }
+  }, [bookingId]);
+
+  if (loading)
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#00BCD4" />
+        </View>
+      </SafeAreaView>
+    );
+
+  if (!booking)
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centered}>
+          <Text>Booking not found</Text>
+        </View>
+      </SafeAreaView>
+    );
+
+  const traveller =
+    booking.traveller?.firstName && booking.traveller?.lastName
+      ? `${booking.traveller.firstName} ${booking.traveller.lastName}`
+      : booking.contact_name || booking.passenger_details?.[0]?.name || "Unknown traveller";
+
+  const totalPrice =
+    (booking.flights?.reduce((sum: number, f: any) => sum + (f.ticket_price || 0), 0) || 0) +
+    (booking.baggage_option?.price || 0);
+
+  // ✅ Khi nhấn "View Booking Detail" → gửi full object sang trang BookingDetail
+  const handleViewDetail = () => {
+    router.push({
+      pathname: "/pages/BookingDetail",
+      params: {
+        bookingData: encodeURIComponent(JSON.stringify(booking)),
+      },
+    });
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea}>
       <ImageBackground
-        source={{ uri: 'https://images.pexels.com/photos/723240/pexels-photo-723240.jpeg' }}
+        source={{ uri: "https://images.pexels.com/photos/723240/pexels-photo-723240.jpeg" }}
         style={styles.background}
         resizeMode="cover"
       >
         <View style={styles.overlay} />
-
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.card}>
-            <View style={styles.iconContainer}>
-              <CheckCircle2 color="#D97706" size={48} strokeWidth={2} />
-            </View>
+            <CheckCircle2 color="#22C55E" size={48} strokeWidth={2} />
+            <Text style={styles.title}>Booking Successful!</Text>
 
-            <Text style={styles.title}>Booking successful</Text>
+            {booking.flights?.map((f: any, idx: number) => (
+              <View key={idx} style={styles.flightCard}>
+                <View style={styles.flightRoute}>
+                  <Text style={styles.airportCode}>{f.departure_airport_code}</Text>
+                  <ArrowLeftRight color="#9CA3AF" size={22} />
+                  <Text style={styles.airportCode}>{f.arrival_airport_code}</Text>
+                </View>
 
-            <View style={styles.flightInfo}>
-              <View style={styles.airport}>
-                <Text style={styles.airportCode}>LCY</Text>
-                <Text style={styles.date}>Tue, Jul 14</Text>
+                <View style={styles.detailsRow}>
+                  <Text style={styles.detailValue}>{traveller}</Text>
+                  <Text style={styles.detailValue}>{f.class || "Economy"}</Text>
+                </View>
+
+                <Text style={styles.price}>${f.ticket_price?.toFixed(2)}</Text>
               </View>
+            ))}
 
-              <View style={styles.arrowContainer}>
-                <ArrowLeftRight color="#6B7280" size={24} />
+            {booking.baggage_option && (
+              <View style={styles.baggageCard}>
+                <Text style={styles.detailValue}>
+                  Baggage: ${booking.baggage_option.price?.toFixed(2)}
+                </Text>
               </View>
+            )}
 
-              <View style={styles.airport}>
-                <Text style={styles.airportCode}>JFK</Text>
-                <Text style={styles.date}>Fri, Jul 17</Text>
-              </View>
-            </View>
+            <Text style={styles.totalPrice}>Total: ${totalPrice?.toFixed(2)}</Text>
 
-            <View style={styles.details}>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Traveller</Text>
-                <Text style={styles.detailLabel}>Class</Text>
-                <Text style={styles.detailLabel}>Flight</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailValue}>Pedro Moreno</Text>
-                <Text style={styles.detailValue}>Economy</Text>
-                <Text style={styles.detailValue}>Round-trip</Text>
-              </View>
-            </View>
-
-            <Text style={styles.price}>$811.56</Text>
-
-            <TouchableOpacity style={styles.detailButton} onPress={() => router.push('/pages/BookingDetail')}>
-              <Text style={styles.detailButtonText}>Booking detail</Text>
+            <TouchableOpacity style={styles.detailButton} onPress={handleViewDetail}>
+              <Text style={styles.detailButtonText}>View Booking Detail</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('/')}>
-              <Text style={styles.homeLink}>Home</Text>
+            <TouchableOpacity onPress={() => router.push("/")}>
+              <Text style={styles.homeLink}>Back to Home</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
       </ImageBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  background: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
+  safeArea: { flex: 1 },
+  background: { ...StyleSheet.absoluteFillObject },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.25)" },
+  content: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 30,
-    width: '100%',
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 25,
+    width: "100%",
     maxWidth: 400,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
     shadowRadius: 20,
-    elevation: 10,
+    elevation: 12,
   },
-  iconContainer: {
+  title: { fontSize: 22, fontWeight: "700", color: "#111827", marginVertical: 15 },
+  flightCard: {
+    width: "100%",
     marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 30,
+  flightRoute: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
   },
-  flightInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: 30,
+  airportCode: { fontSize: 20, fontWeight: "700", marginHorizontal: 10, color: "#1F2937" },
+  detailsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 5,
   },
-  airport: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  airportCode: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  date: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  arrowContainer: {
-    marginHorizontal: 20,
-  },
-  details: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  detailLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    flex: 1,
-    textAlign: 'center',
-  },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1F2937',
-    flex: 1,
-    textAlign: 'center',
-  },
-  price: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 24,
-  },
-  detailButton: {
-    backgroundColor: '#00BCD4',
-    paddingVertical: 14,
-    paddingHorizontal: 60,
+  detailValue: { fontSize: 14, fontWeight: "600", color: "#111827", flex: 1, textAlign: "center" },
+  price: { fontSize: 18, fontWeight: "700", color: "#111827", textAlign: "center", marginTop: 5 },
+  baggageCard: {
+    width: "100%",
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: "#F3F4F6",
     borderRadius: 8,
-    width: '100%',
-    marginBottom: 16,
   },
-  detailButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+  totalPrice: { fontSize: 20, fontWeight: "700", color: "#111827", marginVertical: 10 },
+  detailButton: {
+    backgroundColor: "#00BCD4",
+    paddingVertical: 14,
+    borderRadius: 10,
+    width: "100%",
+    marginBottom: 10,
   },
-  homeLink: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#00BCD4',
-  },
+  detailButtonText: { color: "#fff", fontSize: 16, fontWeight: "600", textAlign: "center" },
+  homeLink: { fontSize: 14, fontWeight: "600", color: "#00BCD4", marginTop: 5 },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F9FAFB" },
 });
