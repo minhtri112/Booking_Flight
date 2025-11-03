@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Briefcase, Armchair, CreditCard } from 'lucide-react-native';
+import { SafeAreaView  } from 'react-native-safe-area-context';
 
 export default function Seat() {
   const router = useRouter();

@@ -4,66 +4,83 @@ import TypeTraveller from "../components/TypeTraveller"
 import TypeCabin from "../components/TypeCabin";
 import { useNavigation } from "expo-router";
 
-import {TypeNavigationProp} from "../types/types";
-
+import { TypeNavigationProp } from "../types/types";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { editOptions } from "../redux/ordersSlice";
+import { ChevronLeft } from "lucide-react-native";
 
 const cabinClasses = [
-    {
-        name: "Economy",
-        isSelected: true,
-    },
-    {
-        name: "Premium Economy",
-        isSelected: false,
-    },
-    {
-        name: "Business",
-        isSelected: false,
-    },
-    {
-        name: "First Class",
-        isSelected: false,
-    }
+    "Economy",
+    "Premium Economy",
+    "Business",
+    "First Class",
 ];
 
 export default function TravellerOptions() {
     const navigation = useNavigation<TypeNavigationProp>();
+    const [typePerson, setTypePerson] = useState({
+        "Adults": 0,
+        "Children": 0,
+        "Infants": 0,
+    });
+    const dispatch = useDispatch();
+    const orders = useSelector((state: any) => state.orders);
+
+    console.log("Current Orders in TravellerOptions:", orders);
+
+    const [cabinClass, setCabinClass] = useState("Economy");
+
+
 
 
     const onFinish = () => {
-        navigation.navigate("SearchFlight");
+        dispatch(
+            editOptions({
+                passenger_details: typePerson,
+                cabin_class: cabinClass,
+            })
+        )
+        navigation.navigate("SelectFlight");
     }
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
-                <Text style={styles.title}>Options</Text>
+
+                <View style={styles.header}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                        <ChevronLeft size={24} color="#111827" />
+                    </TouchableOpacity>
+
+                    <Text style={styles.headerTitle}>Traveller Options</Text>
+
+                    
+                </View>
+
 
                 <Text style={styles.sectionTitle}>Traveller</Text>
-
-                {/* Adults */}
-                <TypeTraveller personType="Adults" ageRange="12+ years" />
-                <TypeTraveller personType="Children" ageRange="2–12 years" />
-                <TypeTraveller personType="Infants" ageRange="Under 2 years" />
-
-
+                <TypeTraveller personType="Adults" ageRange="12+ years" setTypePerson={setTypePerson} />
+                <TypeTraveller personType="Children" ageRange="2–12 years" setTypePerson={setTypePerson} />
+                <TypeTraveller personType="Infants" ageRange="Under 2 years" setTypePerson={setTypePerson} />
 
                 <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Cabin Class</Text>
-                 {
+                {
                     cabinClasses.map((cabin, index) => (
                         <TypeCabin
                             key={index}
-                            cabinClass={cabin.name}
-                            isSelected={cabin.isSelected}
+                            cabinClass={cabin}
+                            isSelected={cabin === cabinClass}
+                            onPress={() => setCabinClass(cabin)}
                         />
                     ))
-                 }
+                }
 
             </ScrollView>
 
             <View style={styles.footer}>
                 <Text style={styles.tripType}>Round-trip</Text>
-                <TouchableOpacity onPress={onFinish}  style={styles.doneButton}>
+                <TouchableOpacity onPress={onFinish} style={styles.doneButton}>
                     <Text style={styles.doneText}>Done</Text>
                 </TouchableOpacity>
             </View>
@@ -72,6 +89,26 @@ export default function TravellerOptions() {
 }
 
 const styles = StyleSheet.create({
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 20,
+        paddingTop: 20,
+        paddingBottom: 24,
+    },
+    backButton: {
+        width: 30,
+        height: 30,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#111827",
+        textAlign : 'center',
+        flex: 1,
+    },
     container: {
         flex: 1,
         backgroundColor: "#fff",
@@ -112,5 +149,11 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "600",
         fontSize: 15,
+    },
+    iconButton: {
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

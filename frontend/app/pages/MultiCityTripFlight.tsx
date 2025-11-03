@@ -9,6 +9,10 @@ import ButtonTypeTrip from '../components/ButtonTypeTrip';
 import { useNavigation } from 'expo-router';
 import { TypeNavigationProp } from '../types/types';
 import { useState } from 'react';
+import FindAirportModel from '../components/FindAriportModel';
+import { showError } from '../components/Alter';
+import { useDispatch } from 'react-redux';
+import {addAirportMultiCity} from '../redux/ordersSlice';
 
 
 type Flight = {
@@ -17,15 +21,35 @@ type Flight = {
     date: string;
 };
 
-export default function FlightSearchScreen() {
-    const [flights, setFlights] = useState<Flight[]>([{ from: 'FROM', to: 'TO', date: 'Fri,Jul 14' }]);
+export default function MultiCityTripFlight() {
+    const [flights, setFlights] = useState<Flight[]>([{ from: 'FROM', to: 'TO', date: new Date().toISOString() }]);
+    const [visibleAirport, setVisibleAirport] = useState(false);
+    const [indexFlight, setIndexFlight] = useState(0);
+    const dispatch = useDispatch();
+
+
+    console.log("Flights:", flights);
+
 
 
     const navigation = useNavigation<TypeNavigationProp>();
     const tripType = 'Multi-city';
 
     const addFlight = () => {
-        setFlights([...flights, { from: 'FROM', to: 'TO', date: 'Fri,Jul 14' }]);
+        setFlights([...flights, { from: 'FROM', to: 'TO', date: new Date().toISOString() }]);
+    }
+
+    const handleNextPress = () => {
+        const check = flights.some(flight => flight.from === 'FROM' || flight.to === 'TO');
+        if (check) {
+            showError('Please fill in all required fields!');
+            return;
+        }
+        dispatch(addAirportMultiCity(flights))
+
+
+        navigation.navigate('TravellerOptions');
+
     }
 
     return (
@@ -52,14 +76,29 @@ export default function FlightSearchScreen() {
                         flights.map((item, index) => {
                             return (
                                 <>
-
                                     <View style={styles.locationContainer}>
-                                        <ButtonSearchAirport textName={item.from} Icon={Plane} />
-                                        <ButtonSearchAirport textName={item.to} Icon={PlaneLanding} />
+                                        <ButtonSearchAirport textName={item.from} Icon={Plane} onPress={() => {setVisibleAirport(true); setIndexFlight(index)}} />
+                                        <ButtonSearchAirport textName={item.to} Icon={PlaneLanding} onPress={() => {setVisibleAirport(true); setIndexFlight(index)}} />
                                     </View>
 
                                     <View style={styles.dateContainer}>
-                                        <ButtonCalendar textCalendar={item.date} />
+                                        <ButtonCalendar
+                                            textCalendar={
+                                                item.date
+                                                    ? new Date(item.date).toLocaleDateString('en-US', {
+                                                        weekday: 'short',
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                    })
+                                                    : 'Depart'
+                                            }
+                                            date={item.date ? new Date(item.date) : null}
+                                            setDate={(date : any) => {
+                                                const newFlights = [...flights];
+                                                newFlights[index].date = date ? date.toISOString() : new Date().toISOString();
+                                                setFlights(newFlights);
+                                            }}
+                                        />
                                     </View>
                                 </>
                             );
@@ -74,9 +113,21 @@ export default function FlightSearchScreen() {
                 </View>
             </ScrollView>
 
-            <TouchableOpacity style={styles.searchButton}>
-                <Text style={styles.searchButtonText}>Search flights</Text>
+            <TouchableOpacity style={styles.searchButton} onPress={handleNextPress}>
+                <Text style={styles.searchButtonText}>Next</Text>
             </TouchableOpacity>
+
+
+            <FindAirportModel
+                visible={visibleAirport}
+                onClose={() => setVisibleAirport(false)}
+                title="Select Airport"
+                currentFrom=""
+                currentTo=""
+                setFlights ={setFlights}
+                index={indexFlight}
+                flights={flights}
+            />
 
         </SafeAreaView>
     );
@@ -116,6 +167,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: 20,
         marginBottom: 24,
+        justifyContent: 'space-between',
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
     },
@@ -124,7 +176,7 @@ const styles = StyleSheet.create({
     },
     locationContainer: {
         flexDirection: 'row',
-        gap : 12,
+        gap: 12,
         padding: 5,
     },
     input: {

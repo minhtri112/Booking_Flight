@@ -13,9 +13,9 @@ import FindAriportModel from '../components/FindAriportModel';
 import { showError } from '../components/Alter';
 
 import { useDispatch } from 'react-redux';
-import {addAirport} from '../redux/ordersSlice';
+import {addAirportRoundTrip} from '../redux/ordersSlice';
 
-export default function FlightSearchScreen() {
+export default function RoundTripFlight() {
     const navigation = useNavigation<TypeNavigationProp>();
     const tripType = 'Round-trip';
     const [visibleAirport, setVisibleAirport] = useState(false);
@@ -33,9 +33,9 @@ export default function FlightSearchScreen() {
             return;
         }
         navigation.navigate("TravellerOptions");
-        dispatch(addAirport({
-            from: currentFrom,
-            to: currentTo,
+        dispatch(addAirportRoundTrip({
+            from: currentFrom.split('-')[0],
+            to: currentTo.split('-')[0],
             dateFrom: selectedDateFrom?.toISOString(),
             dateTo: selectedDateTo?.toISOString(),
             type_trip: tripType
@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
+        justifyContent : 'space-between',
     },
 
     formContainer: {

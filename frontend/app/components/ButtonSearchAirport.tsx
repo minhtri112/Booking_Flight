@@ -4,15 +4,21 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 type Props = {
     textName: string;
     Icon: React.ComponentType<any>;
-    onPress ? : () => void;
+    onPress?: () => void;
 }
 
 export default function ButtonSearchAirport({ textName, Icon, onPress }: Props) {
     return (
-        <TouchableOpacity style = {{flex : 1}}  onPress={onPress}>
+        <TouchableOpacity style={{ flex: 1 }} onPress={onPress}>
             <View style={styles.inputWrapper}>
                 <Icon size={20} color="#666" style={styles.inputIcon} />
-                <Text style={styles.text}>{textName}</Text>
+                <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={styles.text}
+                >
+                    {textName}
+                </Text>
             </View>
         </TouchableOpacity>
 
@@ -21,8 +27,10 @@ export default function ButtonSearchAirport({ textName, Icon, onPress }: Props) 
 
 const styles = StyleSheet.create({
     text: {
-        color: '#666',
-        fontWeight: '500'
+        color: '#444',
+        fontWeight: '500',
+        flexShrink: 1,   
+        flex: 1,          
     },
     inputWrapper: {
         flexDirection: 'row',

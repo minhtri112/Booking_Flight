@@ -6,23 +6,26 @@ import { FlightCard } from './FlightCard';
 
 type FlightGroupProps = {
     flight: Flight;
+    onPress : () => void;
 };
 
-export function FlightGroup({ flight }: FlightGroupProps) {
+export function FlightGroup({ flight, onPress }: FlightGroupProps) {
     return (
-        <View style={styles.groupCard}>
-            {flight.path.map((item, index) => (
-                <FlightCard key={index} item={item} />
-            ))}
+        <TouchableOpacity onPress={onPress}>
+            <View style={styles.groupCard}>
+                {flight.path.map((item, index) => (
+                    <FlightCard key={index} item={item} />
+                ))}
 
-            <View style={styles.footer}>
-                <TouchableOpacity style={styles.heartButton}>
-                    <Heart size={24} color="#6B7280" strokeWidth={2} />
-                </TouchableOpacity>
+                <View style={styles.footer}>
+                    <TouchableOpacity style={styles.heartButton}>
+                        <Heart size={24} color="#6B7280" strokeWidth={2} />
+                    </TouchableOpacity>
 
-                <Text style={styles.price}>${flight.totalPrice}</Text>
+                    <Text style={styles.price}>${flight.totalPrice}</Text>
+                </View>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 
@@ -48,13 +51,13 @@ const styles = StyleSheet.create(
             borderTopWidth: 1,
             borderTopColor: '#F3F4F6',
         },
-        heartButton: { 
-            padding: 4 
+        heartButton: {
+            padding: 4
         },
-        price: { 
-            fontSize: 20, 
-            fontWeight: '700', 
-            color: '#111827' 
+        price: {
+            fontSize: 20,
+            fontWeight: '700',
+            color: '#111827'
         },
     }
 )

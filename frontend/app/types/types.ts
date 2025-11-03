@@ -13,7 +13,9 @@ export type RootStackParamList = {
   OneTripFlight: undefined;
   MultiCityTripFlight: undefined;
   TravellerOptions: undefined;
-  SearchFlight: undefined;
+  SearchFlight: any;
+  FlightDetail: undefined;
+  SelectFlight : undefined;
 };
 
 

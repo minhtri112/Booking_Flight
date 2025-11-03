@@ -1,42 +1,81 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    account_id : '68f741576373f1c628e79c42',
-    flights : [],
-    total_price : 0,
-    type_trip : ""
+    account_id: '68f741576373f1c628e79c42',
+    flights: [{} as any],
+    passenger_details: {},
+    cabin_class: "Economy",
+    total_price: 0,
+    type_trip: "",
 };
 
-// {
-//    flight_id : '',
-//    seat_number : [{seat_number : '', value : 0, class : ''}],
-//    count_passenger : 0,
-//    price_per_ticket : 0,
-//    data : '',
-//    departure_airport_code : '',
-//    arrival_airport_code : '',
-//    passenger_details : [
-//        {
-//            passenger_type : String,
-//            quantity : Number
-//        }
-//    ],
-//    baggage_option : {
-//         type : String,
-//         price : Number
-//     }
-// }
+// {"account_id": "68f741576373f1c628e79c42", "cabin_class": "Economy", 
+// {"arrival_airport_code": "HAN", "date": "2025-11-27T15:36:00.000Z", 
+// "departure_airport_code": "DAD"}], 
+// "passenger_details": {"Adults": 1, "Children": 1, "Infants": 1}, 
+// "total_price": 630, "type_trip": "Round-trip"}
 
 const ordersSlice = createSlice({
-    name : 'orders',
+    name: 'orders',
     initialState,
-    reducers : {
-        addAirport : (state, action) => {
-            console.log(state);
-            console.log(action);
+    reducers: {
+        addAirportRoundTrip: (state, action) => {
+            state.flights = [];
+            state.flights.push(
+                {
+                    departure_airport_code: action.payload.from,
+                    arrival_airport_code: action.payload.to,
+                    date: action.payload.dateFrom,
+                },
+                {
+                    departure_airport_code: action.payload.to,
+                    arrival_airport_code: action.payload.from,
+                    date: action.payload.dateTo,
+                }
+            );
+            state.type_trip = "Round-trip";
+        },
+
+        addAirportOneTrip : (state, action) => {
+            state.flights = [];
+            state.flights.push(
+                {
+                    departure_airport_code: action.payload.from,
+                    arrival_airport_code: action.payload.to,
+                    date: action.payload.date,
+                }
+            );
+            
+            state.type_trip = "One-way";
+        },
+
+        addAirportMultiCity: (state, action) => {
+            state.flights = [];
+            action.payload.forEach((flight: any) => {
+                state.flights.push({
+                    departure_airport_code: flight.from.split('-')[0],
+                    arrival_airport_code: flight.to.split('-')[0],
+                    date: flight.date,
+                });
+            });
+            state.type_trip = "Multi-city";
+        },
+
+        addFlights: (state, action) => {
+            const { index, path } = action.payload;
+            state.flights[index] = { ...state.flights[index], path: path };
+
+            // cap nhat tien total_price
+            state.total_price = state.flights[index].path.reduce((total: number, item: any) => total + item.ticket_price, 0) * action.payload.totalPassengers;
+        },
+
+        editOptions: (state, action) => {
+            state.passenger_details = action.payload.passenger_details;
+            state.cabin_class = action.payload.cabin_class;
         }
+
     }
 });
 
-export const { addAirport } = ordersSlice.actions
+export const { addAirportRoundTrip, editOptions, addFlights,addAirportOneTrip ,addAirportMultiCity} = ordersSlice.actions
 export default ordersSlice.reducer

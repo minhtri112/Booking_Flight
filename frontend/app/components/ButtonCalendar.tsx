@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 
 type Props = {
   textCalendar?: string;
-  date?: Date | null;
+  date : Date | null;
   setDate: React.Dispatch<React.SetStateAction<Date | null>>;
 };
 

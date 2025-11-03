@@ -1,10 +1,16 @@
 import { View, Text, StyleSheet, Modal, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, FlatList } from 'react-native';
 import { X, Plane, PlaneLanding } from 'lucide-react-native';
 import SwapButton from './SwapButton';
-import {  useState } from 'react';
+import { useState } from 'react';
 import FetchAPI from '../services/fetchAPI';
 import AirportItem from './AirportItem';
 import { Airport } from '../types/types';
+
+type Flight = {
+  from: string;
+  to: string;
+  date: string;
+};
 
 
 interface LocationModalProps {
@@ -13,14 +19,18 @@ interface LocationModalProps {
   title: string;
   currentFrom: string;
   currentTo: string;
-  setCurrentFrom: (value: string) => void;
-  setCurrentTo: (value: string) => void;
+  setCurrentFrom?: (value: string) => void;
+  setCurrentTo?: (value: string) => void;
+  setFlights?: (flights: Flight[]) => void;
+  index ?: number;
+  flights ?: Flight[]; 
+
 }
 
 
 
 
-export default function FindAirportModal({ visible, onClose, title, currentFrom, currentTo, setCurrentFrom, setCurrentTo }: LocationModalProps) {
+export default function FindAirportModal({ visible, onClose, title, currentFrom, currentTo, setCurrentFrom, setCurrentTo,setFlights,index, flights }: LocationModalProps) {
 
   const [airports, setAirports] = useState<Airport[]>([]);
   const [searchKeyFrom, setKeyFrom] = useState(currentFrom !== 'FROM' ? currentFrom : '');
@@ -36,27 +46,39 @@ export default function FindAirportModal({ visible, onClose, title, currentFrom,
     }
   };
 
-  
+
   const handleSelectAirport = (airport: Airport) => {
-    if(!selectedAirportFrom){
-      setKeyFrom(airport.airport_code + "-" +  airport.airport_name);
+    if (!selectedAirportFrom) {
+      setKeyFrom(airport.airport_code + "-" + airport.airport_name);
       setAirports([]);
       setSelectedAirportFrom(true);
     }
-    else{
-      setKeyTo(airport.airport_code + "-" +  airport.airport_name);
+    else {
+      setKeyTo(airport.airport_code + "-" + airport.airport_name);
       setAirports([]);
     }
   }
 
 
-  const onFinish =() => {
-    console.log("Finish selecting airports");
-    setCurrentFrom(searchKeyFrom); 
-    setCurrentTo(searchKeyTo);
-    if(onClose) onClose();
+  const onFinish = () => {
+    if (setCurrentFrom && setCurrentTo) {
+      setCurrentFrom(searchKeyFrom);
+      setCurrentTo(searchKeyTo);
+    }
+    if(setFlights){
+      const newFlights = [...(flights || [])];
+      if(index !== undefined){
+        newFlights[index] = {
+          from: searchKeyFrom,
+          to: searchKeyTo,
+          date: newFlights[index]?.date || new Date().toISOString(),
+        };
+        setFlights(newFlights);
+      }
+    }
+    if (onClose) onClose();
   }
-  
+
 
 
 
@@ -85,7 +107,7 @@ export default function FindAirportModal({ visible, onClose, title, currentFrom,
           <View style={styles.inputWrapper}>
             <Plane size={20} color="#00BDD6" style={styles.inputIcon} />
             <TextInput
-              onFocus={() => {setSelectedAirportFrom(false)}}
+              onFocus={() => { setSelectedAirportFrom(false) }}
               onChangeText={(value) => { setKeyFrom(value); searchAirports(value) }}
               underlineColorAndroid="transparent"
               placeholderTextColor="#9CA3AF"
@@ -98,7 +120,7 @@ export default function FindAirportModal({ visible, onClose, title, currentFrom,
           <View style={styles.inputWrapper}>
             <PlaneLanding style={styles.inputIcon} size={20} color="#00BDD6" />
             <TextInput
-              onFocus={() => {setSelectedAirportFrom(true)}}
+              onFocus={() => { setSelectedAirportFrom(true) }}
               onChangeText={(value) => { setKeyTo(value); searchAirports(value) }}
               underlineColorAndroid="transparent"
               placeholderTextColor="#9CA3AF"

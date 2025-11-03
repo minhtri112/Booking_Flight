@@ -15,6 +15,8 @@ import RoundTripFlight from "../pages/RoundTripFlight";
 import OneTripFlight from "../pages/OneTripFlight";
 import MultiCityTripFlight from "../pages/MultiCityTripFlight";
 import SearchFlight from '../pages/SearchFlight';
+import FlightDetail from '../pages/FlightDetail';
+import SelectFlight from '../pages/SelectFlight';
 
 import { RootStackParamList } from '../types/types';
 import TravellerOptions from '../pages/TravellerOptions';
@@ -102,6 +104,18 @@ export default function ScreenNavigation() {
         name="SearchFlight"
         component={SearchFlight}
         options={{ headerShown: false }} 
+      />
+
+      <Stack.Screen
+        name="FlightDetail"
+        component={FlightDetail}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="SelectFlight"
+        component={SelectFlight}
+        options={{ headerShown: false }}
       />
 
     </Stack.Navigator>

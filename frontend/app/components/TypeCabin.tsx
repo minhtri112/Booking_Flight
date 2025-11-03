@@ -3,11 +3,12 @@ import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 type TypeCabinProps = {
     cabinClass: string,
     isSelected: boolean,
+    onPress: () => void,
 }
 
-export default function TypeCabin({ cabinClass, isSelected}: TypeCabinProps) {
+export default function TypeCabin({ cabinClass, isSelected, onPress }: TypeCabinProps) {
     return (
-        <TouchableOpacity style={styles.classOption}>
+        <TouchableOpacity style={styles.classOption} onPress={onPress}>
             <Text style={styles.classText}>{cabinClass}</Text>
             {isSelected && <Text style={styles.checkMark}>✓</Text>}
         </TouchableOpacity>

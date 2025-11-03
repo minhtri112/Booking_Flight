@@ -1,25 +1,45 @@
+import { useState } from 'react';
 import { View, Text, TouchableOpacity,StyleSheet } from 'react-native';
 
 
 type TypeTravellerProps = {
     personType: string,
     ageRange: string,
+    setTypePerson: React.Dispatch<React.SetStateAction<{
+        Adults: number;
+        Children: number;
+        Infants: number;
+    }>>;
 }
 
 
-export default function TypeTraveller({personType,ageRange}: TypeTravellerProps) {
-    return (
+export default function TypeTraveller({personType,ageRange,setTypePerson}: TypeTravellerProps) {
+  const [count,setCount] = useState(0);
+
+  const handleIncrement = () => { 
+    setCount(count + 1);
+    setTypePerson(prev => ({ ...prev, [personType]: count + 1 }));
+  };
+
+  const handleDecrement = () => {
+    if (count > 0) {
+      setCount(count - 1);
+      setTypePerson(prev => ({ ...prev, [personType]: count - 1 }));
+    }
+  };
+
+  return (
         <View style={styles.row}>
             <View>
                 <Text style={styles.label}>{personType}</Text>
                 <Text style={styles.subLabel}>{ageRange}</Text>
             </View>
             <View style={styles.counter}>
-                <TouchableOpacity style={styles.circleButton}>
+                <TouchableOpacity style={styles.circleButton} onPress={handleDecrement}>
                     <Text style={styles.btnText}>-</Text>
                 </TouchableOpacity>
-                <Text style={styles.countText}>1</Text>
-                <TouchableOpacity style={styles.circleButton}>
+                <Text style={styles.countText}>{count}</Text>
+                <TouchableOpacity style={styles.circleButton} onPress={handleIncrement}>
                     <Text style={styles.btnText}>+</Text>
                 </TouchableOpacity>
             </View>

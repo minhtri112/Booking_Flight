@@ -21,4 +21,20 @@ module.exports.getAirportsByName = async (req, res) => {
     }
 };
 
-
+module.exports.getAirportsByCode = async (req,res)=>{
+    try{
+        const code = req.params.code;
+        const record = await Airport.findOne({airport_code: code});
+        res.json({
+            status : 200,
+            data : record
+        })
+    }
+    catch(err){
+        console.error("DB ERROR", err);
+        res.json({
+            status : 500,
+            message : "Internal server error"
+        })
+    }
+}
