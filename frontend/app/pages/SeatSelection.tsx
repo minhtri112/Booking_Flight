@@ -1,337 +1,213 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { Armchair, ArrowLeft } from "lucide-react-native";
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { User, Briefcase, Armchair, CreditCard } from 'lucide-react-native';
 
-interface SeatLayout {
-  seat_number: string;
-  value: number;
-  class: string;
-  status: boolean; 
-}
-
-interface FlightData {
-  flight_id: string;
-  airplane_id: string;
-  departure_airport_code: string;
-  arrival_airport_code: string;
-  seat_layout: SeatLayout[];
-  ticket_price: number;
-}
+type SeatStatus = 'available' | 'unavailable' | 'selected';
 
 export default function SeatSelection() {
   const router = useRouter();
-  const params = useLocalSearchParams();
+  const [selectedSeat, setSelectedSeat] = useState<string | null>('3D');
 
-  // ------------------ Chuẩn hóa các params ------------------
-  const flightId: string =
-    Array.isArray(params.flightId) ? params.flightId[0] : params.flightId || "";
+  const columns = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const rows = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  const selectedSeatsData: string =
-    Array.isArray(params.selectedSeatsData) ? params.selectedSeatsData[0] : params.selectedSeatsData || "";
-
-  const travellerData: string =
-    Array.isArray(params.travellerData) ? params.travellerData[0] : params.travellerData || "";
-
-  const baggageData: string =
-    Array.isArray(params.baggageData) ? params.baggageData[0] : params.baggageData || "";
-
-  const flightIds: string =
-    Array.isArray(params.flightIds) ? params.flightIds[0] : params.flightIds || "";
-
-  // ------------------ Parse JSON ------------------
-  const parsedTravellerData = travellerData ? JSON.parse(decodeURIComponent(travellerData)) : null;
-  const parsedBaggageData = baggageData ? JSON.parse(decodeURIComponent(baggageData)) : null;
-  const parsedFlightIds: string[] = flightIds ? JSON.parse(decodeURIComponent(flightIds)) : [flightId];
-  const parsedSelectedSeats: Record<string, string[]> = selectedSeatsData
-    ? JSON.parse(decodeURIComponent(selectedSeatsData))
-    : {};
-
-  // ------------------ State ------------------
-  const [flight, setFlight] = useState<FlightData | null>(null);
-  const [selectedSeats, setSelectedSeats] = useState<string[]>(parsedSelectedSeats[flightId] || []);
-  const [loading, setLoading] = useState(true);
-
-  const BASE_URL = "http://localhost:3000";
-
-  useEffect(() => {
-    const fetchFlight = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/api/flights/seats?flight_id=${flightId}`);
-        const json = await res.json();
-        const f = json.data?.[0] || generateMockFlight(flightId);
-
-        setFlight({
-          flight_id: f.flight_id || flightId,
-          airplane_id: f.airplane_id || "",
-          departure_airport_code: f.from || f.departure_airport_code || "",
-          arrival_airport_code: f.to || f.arrival_airport_code || "",
-          seat_layout: f.seat_layout || [],
-          ticket_price: f.ticket_price || 320,
-        });
-      } catch (err) {
-        console.error(err);
-        Alert.alert("Error", "Cannot load flight data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFlight();
-  }, [flightId]);
-
-  const toggleSeat = (seatNumber: string) => {
-    setSelectedSeats((prev) =>
-      prev.includes(seatNumber) ? prev.filter((s) => s !== seatNumber) : [...prev, seatNumber]
-    );
-  };
-
-  const handleNext = () => {
-    if (selectedSeats.length === 0) {
-      Alert.alert("No seat selected", "Please select at least 1 seat.");
-      return;
+  const getSeatStatus = (row: number, col: string): SeatStatus => {
+    if (selectedSeat === `${row}${col}`) return 'selected';
+    if (
+      (row === 1 && (col === 'B' || col === 'D' || col === 'E')) ||
+      (row === 2 && (col === 'B' || col === 'C' || col === 'E')) ||
+      (row === 3 && (col === 'A' || col === 'B' || col === 'C' || col === 'E')) ||
+      (row === 4 && (col === 'B' || col === 'C' || col === 'D' || col === 'E')) ||
+      (row === 5 && (col === 'B' || col === 'E' || col === 'F')) ||
+      (row === 6 && (col === 'B' || col === 'C' || col === 'E')) ||
+      (row === 7 && (col === 'B' || col === 'C' || col === 'D' || col === 'E'))
+    ) {
+      return 'unavailable';
     }
-
-    const updatedSeats = { ...parsedSelectedSeats, [flightId]: selectedSeats };
-
-    router.push({
-      pathname: "/pages/Seat",
-      params: {
-        flightIds: encodeURIComponent(JSON.stringify(parsedFlightIds)),
-        travellerData: encodeURIComponent(JSON.stringify(parsedTravellerData)),
-        baggageData: encodeURIComponent(JSON.stringify(parsedBaggageData)),
-        selectedSeatsData: encodeURIComponent(JSON.stringify(updatedSeats)),
-      },
-    });
+    return 'available';
   };
 
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#00BCD4" />
-      </View>
-    );
-  }
+  const renderSeat = (row: number, col: string) => {
+    const status = getSeatStatus(row, col);
+    const seatId = `${row}${col}`;
+    const isSelected = selectedSeat === seatId;
 
-  if (!flight) {
-    return (
-      <View style={styles.centered}>
-        <Text>Flight not found</Text>
-      </View>
-    );
-  }
+    const seatStyle = [
+      styles.seat,
+      status === 'unavailable' && styles.seatUnavailable,
+      isSelected && styles.seatSelected,
+    ];
 
-  const baggagePrice = parsedBaggageData
-    ? (parsedBaggageData.checkedBagPrice || 0) + (parsedBaggageData.insurancePrice || 0)
-    : 0;
-  const totalPrice = flight.ticket_price + baggagePrice;
-
-  const columns = ["A", "B", "C", "D", "E", "F"];
-  const rows = Array.from(
-    new Set(flight.seat_layout.map((s) => parseInt(s.seat_number)))
-  );
-
-  const getSeatStatus = (seatNumber: string) => {
-    const seat = flight.seat_layout.find((s) => s.seat_number === seatNumber);
-    if (!seat) return "unavailable";
-    if (seat.status) return "unavailable";
-    if (selectedSeats.includes(seatNumber)) return "selected";
-    return "available";
-  };
-
-  const renderSeat = (seatNumber: string) => {
-    const status = getSeatStatus(seatNumber);
     return (
       <TouchableOpacity
-        key={seatNumber}
-        style={[
-          styles.seat,
-          status === "selected" && styles.seatSelected,
-          status === "unavailable" && styles.seatUnavailable,
-        ]}
-        disabled={status === "unavailable"}
-        onPress={() => toggleSeat(seatNumber)}
+        key={seatId}
+        style={seatStyle}
+        disabled={status === 'unavailable'}
+        onPress={() => setSelectedSeat(seatId)}
       >
-        {status === "unavailable" ? (
-          <Text style={styles.seatUnavailableText}>✕</Text>
-        ) : status === "selected" ? (
-          <Text style={styles.seatSelectedText}>✓</Text>
-        ) : (
-          <Text style={styles.seatText}>{seatNumber}</Text>
-        )}
+        {status === 'unavailable' && <Text style={styles.seatUnavailableText}>✕</Text>}
+        {isSelected && <Text style={styles.seatSelectedText}>✓</Text>}
       </TouchableOpacity>
     );
   };
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#00BCD4" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {flight.departure_airport_code} → {flight.arrival_airport_code}
-        </Text>
-      </View>
-
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-        {parsedTravellerData && (
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Traveller:</Text>
-            <Text style={styles.infoText}>
-              {parsedTravellerData.firstName} {parsedTravellerData.lastName}
-            </Text>
-          </View>
-        )}
-
-        <View style={styles.legend}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendBox, styles.legendAvailable]} />
-            <Text style={styles.legendText}>Available</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendBox, styles.legendUnavailable]}>
-              <Text style={styles.legendUnavailableText}>✕</Text>
+      <View style={styles.wrapper}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={styles.backButton}>←</Text>
+            </TouchableOpacity>
+            <View style={styles.stepIndicator}>
+              <View style={[styles.stepIcon, styles.stepComplete]}>
+                <User color="#fff" size={18} />
+              </View>
+              <View style={[styles.stepLine, styles.stepLineActive]} />
+              <View style={[styles.stepIcon, styles.stepComplete]}>
+                <Briefcase color="#fff" size={18} />
+              </View>
+              <View style={[styles.stepLine, styles.stepLineActive]} />
+              <View style={[styles.stepIcon, styles.stepActive]}>
+                <Armchair color="#fff" size={18} />
+              </View>
+              <View style={styles.stepLine} />
+              <View style={styles.stepIcon}>
+                <CreditCard color="#9CA3AF" size={18} />
+              </View>
             </View>
-            <Text style={styles.legendText}>Unavailable</Text>
           </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendBox, styles.legendSelected]}>
-              <Text style={styles.legendSelectedText}>✓</Text>
-            </View>
-            <Text style={styles.legendText}>Selected</Text>
-          </View>
-        </View>
 
-        <View style={styles.seatMapContainer}>
-          <View style={styles.columnLabels}>
-            <Text style={styles.rowLabel}></Text>
-            {columns.map((col, index) => (
-              <View key={col} style={styles.columnWrapper}>
-                <Text style={styles.columnLabel}>{col}</Text>
-                {index === 2 && <View style={styles.aisle} />}
+          {/* Legend */}
+          <View style={styles.legend}>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendBox, styles.legendAvailable]} />
+              <Text style={styles.legendText}>Available seat (from $5–$10)</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendBox, styles.legendUnavailable]}>
+                <Text style={styles.legendUnavailableText}>✕</Text>
+              </View>
+              <Text style={styles.legendText}>Unavailable seat</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendBox, styles.legendSelected]}>
+                <Text style={styles.legendSelectedText}>✓</Text>
+              </View>
+              <Text style={styles.legendText}>Selected</Text>
+            </View>
+          </View>
+
+          {/* Seat map */}
+          <View style={styles.seatMapContainer}>
+            {/* Column labels */}
+            <View style={styles.columnLabels}>
+              <Text style={styles.rowLabel}></Text>
+              {columns.map((col, index) => (
+                <View key={col} style={styles.columnWrapper}>
+                  <Text style={styles.columnLabel}>{col}</Text>
+                  {index === 2 && <View style={styles.aisle} />}
+                </View>
+              ))}
+            </View>
+
+            {rows.map((row) => (
+              <View key={row} style={styles.row}>
+                <Text style={styles.rowLabel}>{String(row).padStart(2, '0')}</Text>
+                {columns.map((col, index) => (
+                  <View key={col} style={styles.columnWrapper}>
+                    {renderSeat(row, col)}
+                    {index === 2 && <View style={styles.aisle} />}
+                  </View>
+                ))}
               </View>
             ))}
           </View>
+        </ScrollView>
 
-          {rows.map((row) => (
-            <View key={row} style={styles.row}>
-              <Text style={styles.rowLabel}>{String(row).padStart(2, "0")}</Text>
-              {columns.map((col, index) => {
-                const seatNumber = `${row}${col}`;
-                return (
-                  <View key={col} style={styles.columnWrapper}>
-                    {renderSeat(seatNumber)}
-                    {index === 2 && <View style={styles.aisle} />}
-                  </View>
-                );
-              })}
-            </View>
-          ))}
+        {/* Footer */}
+        <View style={styles.footer}>
+          <View>
+            <Text style={styles.footerTitle}>Select seat 1 of 1</Text>
+            <Text style={styles.footerSubtitle}>
+              Seat {selectedSeat} - ${selectedSeat === '3D' ? '5.68' : '6.50'}
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.nextBtn} onPress={() => router.push('/pages/Payment')}>
+            <Text style={styles.nextText}>Next</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <View>
-          <Text style={styles.footerTitle}>{selectedSeats.length} seat(s)</Text>
-          <Text style={styles.footerSubtitle}>${totalPrice.toFixed(2)}</Text>
-        </View>
-        <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
-          <Text style={styles.nextText}>Select</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
 
-// ----------------- Mock flight -----------------
-function generateMockFlight(flightId: string): FlightData {
-  const seats: SeatLayout[] = [];
-  const cols = ["A", "B", "C", "D", "E", "F"];
-  for (let r = 1; r <= 10; r++) {
-    for (let c of cols) {
-      seats.push({
-        seat_number: `${r}${c}`,
-        value: 0,
-        class: r <= 2 ? "Business" : "Economy",
-        status: Math.random() < 0.2,
-      });
-    }
-  }
-  return {
-    flight_id: flightId,
-    airplane_id: "A320",
-    departure_airport_code: "SGN",
-    arrival_airport_code: "HAN",
-    seat_layout: seats,
-    ticket_price: 320,
-  };
-}
-
-// ----------------- Styles -----------------
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F9FAFB" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    backgroundColor: "#fff",
-  },
-  headerTitle: { flex: 1, textAlign: "center", fontSize: 18, fontWeight: "600" },
+  safe: { flex: 1, backgroundColor: '#fff' },
+  wrapper: { flex: 1, justifyContent: 'space-between' },
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: 16, paddingBottom: 20 },
-  infoBox: { backgroundColor: "#fff", padding: 12, borderRadius: 8, marginVertical: 12 },
-  infoLabel: { fontSize: 12, color: "#6B7280" },
-  infoText: { fontSize: 14, fontWeight: "600", color: "#111827" },
-  legend: { flexDirection: "row", justifyContent: "space-around", marginVertical: 16 },
-  legendItem: { flexDirection: "row", alignItems: "center" },
-  legendBox: { width: 26, height: 26, borderRadius: 6, marginRight: 6, justifyContent: "center", alignItems: "center" },
-  legendAvailable: { backgroundColor: "#fff", borderWidth: 2, borderColor: "#00BCD4" },
-  legendUnavailable: { backgroundColor: "#F3F4F6", borderWidth: 2, borderColor: "#F3F4F6" },
-  legendSelected: { backgroundColor: "#00BCD4" },
-  legendText: { fontSize: 13, color: "#374151" },
-  legendUnavailableText: { color: "#9CA3AF", fontSize: 12 },
-  legendSelectedText: { color: "#fff", fontSize: 12, fontWeight: "700" },
-  seatMapContainer: { alignItems: "center", paddingVertical: 10 },
-  columnLabels: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  columnWrapper: { flexDirection: "row", alignItems: "center" },
-  columnLabel: { width: 36, textAlign: "center", fontSize: 13, fontWeight: "600", color: "#6B7280" },
-  row: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  rowLabel: { width: 36, textAlign: "center", fontSize: 13, fontWeight: "600", color: "#6B7280" },
+  scrollContent: { paddingBottom: 40 },
+  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15 },
+  backButton: { fontSize: 22, color: '#111827', marginBottom: 15 },
+  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  stepIcon: {
+    width: 38, height: 38, borderRadius: 19, backgroundColor: '#E5E7EB',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  stepActive: { backgroundColor: '#00BCD4' },
+  stepComplete: { backgroundColor: '#00BCD4' },
+  stepLine: { width: 28, height: 2, backgroundColor: '#E5E7EB' },
+  stepLineActive: { backgroundColor: '#00BCD4' },
+
+  legend: { paddingHorizontal: 20, paddingBottom: 10 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  legendBox: {
+    width: 24, height: 24, borderRadius: 4, marginRight: 10,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  legendAvailable: { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' },
+  legendUnavailable: { backgroundColor: '#F3F4F6' },
+  legendUnavailableText: { fontSize: 12, color: '#9CA3AF' },
+  legendSelected: { backgroundColor: '#00BCD4' },
+  legendSelectedText: { fontSize: 12, color: '#fff', fontWeight: '700' },
+  legendText: { fontSize: 12, color: '#6B7280' },
+
+  seatMapContainer: { alignItems: 'center', paddingHorizontal: 10 },
+  columnLabels: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 ,   marginLeft: -10,},
+  columnWrapper: { flexDirection: 'row', alignItems: 'center' },
+  columnLabel: {
+    width: 40, textAlign: 'center', fontSize: 14, fontWeight: '600', color: '#6B7280',
+  },
+  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  rowLabel: {
+    width: 40, textAlign: 'center', fontSize: 14, fontWeight: '600', color: '#6B7280',
+  },
   seat: {
-    width: 40, height: 40, borderRadius: 8, borderWidth: 1, borderColor: "#E5E7EB",
-    backgroundColor: "#fff", alignItems: "center", justifyContent: "center", marginHorizontal: 4
+    width: 40, height: 40, borderRadius: 6, borderWidth: 1, borderColor: '#E5E7EB',
+    backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginHorizontal: 2,
   },
-  seatUnavailable: { backgroundColor: "#F3F4F6", borderColor: "#F3F4F6" },
-  seatUnavailableText: { fontSize: 14, color: "#9CA3AF" },
-  seatSelected: { backgroundColor: "#00BCD4", borderColor: "#00BCD4" },
-  seatSelectedText: { fontSize: 14, color: "#fff", fontWeight: "700" },
-  seatText: { fontWeight: "600", color: "#111827" },
-  aisle: { width: 16 },
+  seatUnavailable: { backgroundColor: '#F3F4F6', borderColor: '#F3F4F6' },
+  seatUnavailableText: { fontSize: 16, color: '#9CA3AF' },
+  seatSelected: { backgroundColor: '#00BCD4', borderColor: '#00BCD4' },
+  seatSelectedText: { fontSize: 16, color: '#fff', fontWeight: '700' },
+  aisle: { width: 20 },
+
   footer: {
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    backgroundColor: "#fff",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    borderTopWidth: 1, borderTopColor: '#E5E7EB', backgroundColor: '#fff',
+    paddingHorizontal: 20, paddingVertical: 15, flexDirection: 'row',
+    justifyContent: 'space-between', alignItems: 'center',
   },
-  footerTitle: { fontSize: 16, fontWeight: "600", color: "#111827" },
-  footerSubtitle: { fontSize: 14, color: "#6B7280" },
-  nextBtn: { backgroundColor: "#00BCD4", paddingVertical: 12, paddingHorizontal: 32, borderRadius: 8 },
-  nextText: { fontSize: 16, color: "#fff", fontWeight: "600" },
-  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  footerTitle: { fontSize: 16, fontWeight: '600', color: '#1F2937' },
+  footerSubtitle: { fontSize: 14, color: '#6B7280' },
+  nextBtn: {
+    backgroundColor: '#00BCD4', paddingVertical: 12,
+    paddingHorizontal: 50, borderRadius: 8,
+  },
+  nextText: { fontSize: 16, color: '#fff', fontWeight: '600' },
 });

@@ -1,24 +1,22 @@
+// import express
 const express = require("express");
-const cors = require("cors");
 const dotenv = require("dotenv");
+// import database config
 const database = require("./config/datasbase");
-const route = require("./routes/index.route");
-
-dotenv.config();
+const PORT = process.env.PORT || 3000;
+// import routes
+const route = require('./routes/index.route');
 const app = express();
-
-// Middleware
-app.use(cors());
+dotenv.config();
 app.use(express.json());
 
-// Connect DB
+// Connect to Database
 database.connect();
 
-// Mount routes
+// Routes
 route(app);
 
-// Start server
-const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`Server đang chạy tại http://localhost:${PORT}`);
 });

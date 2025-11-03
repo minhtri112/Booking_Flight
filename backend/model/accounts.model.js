@@ -6,6 +6,7 @@ const accountSchema = new mongoose.Schema(
         email : String,
         user : String,
         password : String,
+        token : String,
     },
     { timestamps: true }
 );
