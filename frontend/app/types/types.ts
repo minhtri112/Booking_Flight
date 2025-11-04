@@ -16,6 +16,8 @@ export type RootStackParamList = {
   SearchFlight: any;
   FlightDetail: undefined;
   SelectFlight : undefined;
+  Login: undefined;
+  Register: undefined;
 };
 
 

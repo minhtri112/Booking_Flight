@@ -5,9 +5,10 @@ import FlightCardDetail from '../components/FlightCardDetail';
 
 import { useNavigation } from 'expo-router';
 import { useSelector } from 'react-redux';
+import {TypeNavigationProp} from "../types/types";
 
 export default function FlightDetailsScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<TypeNavigationProp>();
   const orders = useSelector((state: any) => state.orders);
 
   console.log("Orders in FlightDetailsScreen:", orders);
@@ -128,8 +129,8 @@ export default function FlightDetailsScreen() {
           <Text style={styles.price}>${totalPrice}</Text>
           <Text style={styles.priceLabel}>Total price</Text>
         </View>
-        <TouchableOpacity style={styles.selectButton}>
-          <Text style={styles.selectButtonText}>Select</Text>
+        <TouchableOpacity style={styles.selectButton} onPress={() => navigation.navigate('TravellerInformation')}>
+          <Text style={styles.selectButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
 

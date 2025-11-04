@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema(
     {
-       order_details : [String],
-       account_id : String,
+       order_details : [{type: mongoose.Schema.Types.String, ref: 'OrderDetails' }],
+       account_id : {type: mongoose.Schema.Types.String, ref: 'Account' },
        passenger_count : Number,
        passenger_details : [
         {
@@ -16,6 +16,7 @@ const orderSchema = new mongoose.Schema(
        total_price : Number,
        payment_method : String,
        contact_name : String,
+       phone : String,
        baggage_option : {
         type : String,
         price : Number

@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Briefcase, Armchair, CreditCard, ShieldCheck } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { addBaggage} from '../redux/ordersSlice';
+import { useDispatch } from 'react-redux';
 
 export default function BaggageInformation() {
   const router = useRouter();
   const [checkedBag, setCheckedBag] = useState(true);
   const [insurance, setInsurance] = useState(false);
+  const dispatch = useDispatch();
+
+  const handleNext = () => {
+    if(checkedBag){
+      dispatch(addBaggage({
+        type : "Max 22.1 lbs",
+        price : 19.99
+      }));
+      router.push('/pages/Seat');
+    }
+  }
+
+
+
+
+
+
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -154,7 +174,7 @@ export default function BaggageInformation() {
             <Text style={styles.price}>$806</Text>
             <Text style={styles.priceNote}>1 adult</Text>
           </View>
-          <TouchableOpacity style={styles.nextBtn} onPress={() => router.push('/pages/Seat')}>
+          <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
             <Text style={styles.nextText}>Next</Text>
           </TouchableOpacity>
         </View>

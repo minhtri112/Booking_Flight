@@ -1,4 +1,4 @@
-const API_URL = "http://192.168.3.12:3000";
+const API_URL = "http://172.19.200.157:3000";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

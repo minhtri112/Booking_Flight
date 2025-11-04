@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const orderDetailsSchema = new mongoose.Schema(
     {
-        flight_id : String,
+        flight_id : { type: mongoose.Schema.Types.String, ref: 'Flight' },
         seat_number : [String],
         price : Number,
         status : Boolean
