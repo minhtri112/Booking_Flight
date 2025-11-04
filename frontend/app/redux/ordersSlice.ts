@@ -7,6 +7,14 @@ const initialState = {
     cabin_class: "Economy",
     total_price: 0,
     type_trip: "",
+    phone : "",
+    contact_name : "",
+    payment_method : "",
+    baggage_option : {
+        type : "",
+        price : 0,
+    },
+
 };
 
 // {"account_id": "68f741576373f1c628e79c42", "cabin_class": "Economy", 
@@ -72,10 +80,18 @@ const ordersSlice = createSlice({
         editOptions: (state, action) => {
             state.passenger_details = action.payload.passenger_details;
             state.cabin_class = action.payload.cabin_class;
+        },
+
+        addTraveller : (state, action) => {
+            state.contact_name = action.payload.contact_name;
+            state.phone = action.payload.phone;
+        },
+        addBaggage : (state, action) => {
+            state.baggage_option = action.payload;
         }
 
     }
 });
 
-export const { addAirportRoundTrip, editOptions, addFlights,addAirportOneTrip ,addAirportMultiCity} = ordersSlice.actions
+export const { addAirportRoundTrip, editOptions, addFlights,addAirportOneTrip ,addAirportMultiCity,addTraveller, addBaggage} = ordersSlice.actions
 export default ordersSlice.reducer

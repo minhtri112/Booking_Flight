@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Modal, SafeAreaView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { User, Briefcase, Armchair, CreditCard } from 'lucide-react-native'; 
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
+import { User, Briefcase, Armchair, CreditCard } from 'lucide-react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { showError } from '../components/Alter';
+import { addTraveller } from '../redux/ordersSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from 'expo-router';
+
+import {TypeNavigationProp} from "../types/types";
 
 export default function TravellerInformation() {
-  const router = useRouter();
+  const navigation = useNavigation<TypeNavigationProp>();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [gender, setGender] = useState('');
@@ -17,13 +23,28 @@ export default function TravellerInformation() {
 
   const genders = ['Male', 'Female', 'Other'];
   const countryCodes = ['+01', '+44', '+61', '+81', '+84'];
+  const dispatch = useDispatch();
+  const orders = useSelector((state: any) => state.orders);
+
+  const totalPassengers = (Object.values(orders.passenger_details) as number[])
+    .reduce((sum, value) => sum + value, 0);
+
+
+  const handleNext = () => {
+    if (firstName.trim() === '' || lastName.trim() === '' || gender.trim() === '' || email.trim() === '' || phone.trim() === '') {
+      showError("Please fill in all required fields.");
+      return;
+    }
+    dispatch(addTraveller({ contact_name: `${firstName} ${lastName}`, phone : phone }));
+    navigation.navigate('Seat');
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push('/pages/Home')}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.backButton}>←</Text>
           </TouchableOpacity>
 
@@ -54,7 +75,7 @@ export default function TravellerInformation() {
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.title}>Traveller information</Text>
-          <Text style={styles.subTitle}>Traveller: 1 adult</Text>
+          <Text style={styles.subTitle}>Traveller: {totalPassengers}</Text>
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>First name</Text>
@@ -124,10 +145,10 @@ export default function TravellerInformation() {
         {/* Footer */}
         <View style={styles.footer}>
           <View>
-            <Text style={styles.price}>$806</Text>
-            <Text style={styles.priceNote}>1 adult</Text>
+            <Text style={styles.price}>${orders.total_price}</Text>
+            <Text style={styles.priceNote}>{totalPassengers} adult</Text>
           </View>
-          <TouchableOpacity style={styles.nextBtn} onPress={() => router.push('/pages/BaggageInformation')}>
+          <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
             <Text style={styles.nextText}>Next</Text>
           </TouchableOpacity>
         </View>
