@@ -14,6 +14,7 @@ import FindAriportModel from '../components/FindAriportModel';
 import { showError } from '../components/Alter';
 
 import {addAirportOneTrip} from '../redux/ordersSlice';
+import Header from "../components/Header";
 
 export default function OneTripFlight() {
   const navigation = useNavigation<TypeNavigationProp>();
@@ -48,13 +49,8 @@ export default function OneTripFlight() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-            <X size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Flight</Text>
-          <View style={styles.placeholder} />
-        </View>
+
+        <Header text="Flight" Icon={X} />
 
         {/* Trip type buttons */}
         <View style={styles.tripTypeContainer}>
@@ -117,28 +113,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-  },
-  closeButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
-  },
-  placeholder: {
-    width: 40,
   },
   tripTypeContainer: {
     flexDirection: 'row',

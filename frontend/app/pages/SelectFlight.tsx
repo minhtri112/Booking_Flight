@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import FetchApi from "../services/fetchAPI";
 
 import {TypeNavigationProp} from "../types/types";
+import Header from "../components/Header";
 
 export default function SelectFlight() {
     const navigation = useNavigation<TypeNavigationProp>();
@@ -43,6 +44,13 @@ export default function SelectFlight() {
         fetchAirports();
     }, [flightData]);
 
+    const checkSelectedFlight = (departureAirportCode: string, arrivalAirportCode: string) => {
+        return flightData.some((item : any) => {
+            return item.departure_airport_code === departureAirportCode &&
+                   item.arrival_airport_code === arrivalAirportCode && Array.isArray(item.path);
+        })
+    }
+
     const handleSelectFlight = (item: any) => {
         navigation.navigate("SearchFlight", {
             departure_airport_code: item.departure.airport_code,
@@ -62,16 +70,12 @@ export default function SelectFlight() {
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <ChevronLeft size={26} color="#111827" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Select Flight</Text>
-            </View>
+
+            <Header text="Select Flight" Icon={ChevronLeft} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
                 {airports.map((item, index) => (
-                    <View style={styles.card} key={index}>
+                    <View style={[styles.card, checkSelectedFlight(item.departure.airport_code, item.arrival.airport_code) && styles.cardBorder]} key={index}>
                         <View style={styles.row}>
                             <PlaneTakeoff size={32} color="#00BCD4" style={styles.icon} />
 
@@ -112,29 +116,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#f9fafb",
     },
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingVertical: 20,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: "#e5e7eb",
-        backgroundColor: "#fff",
-    },
-    backButton: {
-        width: 36,
-        height: 36,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    headerTitle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#111827",
-        textAlign: "center",
-        marginRight: 36,
-    },
     card: {
         backgroundColor: "#fff",
         marginHorizontal: 16,
@@ -146,6 +127,10 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
+    },
+    cardBorder : {
+        borderWidth: 2,
+        borderColor: "#00BCD4",
     },
     row: {
         flexDirection: "row",

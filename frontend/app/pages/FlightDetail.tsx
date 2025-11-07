@@ -7,11 +7,17 @@ import { useNavigation } from 'expo-router';
 import { useSelector } from 'react-redux';
 import {TypeNavigationProp} from "../types/types";
 
+import Header from '../components/Header';
+
 export default function FlightDetailsScreen() {
   const navigation = useNavigation<TypeNavigationProp>();
   const orders = useSelector((state: any) => state.orders);
 
-  console.log("Orders in FlightDetailsScreen:", orders);
+  orders.flights.forEach((item : any) => {
+     item.path.forEach((item : any) => {
+        console.log(item);
+     })
+  });
 
   const dateFrom = new Date(orders.flights[0]?.date);
   const dateTo = new Date(orders.flights[orders.flights.length - 1]?.date);
@@ -28,14 +34,8 @@ export default function FlightDetailsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color="#1a1a1a" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Flight details</Text>
 
-        </View>
+        <Header text="Flight details" Icon={ArrowLeft} />
 
         {/* Trip Title */}
         <View style={styles.tripTitle}>
@@ -144,24 +144,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-
-  iconButton: {
-    padding: 4,
   },
   tripTitle: {
     paddingHorizontal: 16,

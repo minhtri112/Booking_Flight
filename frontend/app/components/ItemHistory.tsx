@@ -96,7 +96,7 @@ export default function ItemHistory({ item }: { item: any }) {
         <View style={styles.detailRow}>
           <Calendar size={18} color="#6b7280" strokeWidth={2} />
           <Text style={styles.detailLabel}>Ngày đặt:</Text>
-          <Text style={styles.detailValue}>{formatDate(item.date_created)}</Text>
+          <Text style={styles.detailValue}>{formatDate(item.createdAt)}</Text>
         </View>
       </View>
 

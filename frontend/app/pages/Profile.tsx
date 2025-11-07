@@ -16,7 +16,7 @@ import { TypeNavigationProp } from '../types/types';
 
 import FetchApi from "../services/fetchAPI";
 import ItemHistory from '../components/ItemHistory';
-
+import Header from '../components/Header';
 
 export default function ProfileScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -52,13 +52,8 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
-          <ChevronLeft size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-      </View>
+
+      <Header text="Profile" Icon={ChevronLeft} />
 
       {isLoggedIn ? (
         <>

@@ -5,9 +5,9 @@ export type RootStackParamList = {
   TravellerInformation: undefined;
   BaggageInformation: undefined;
   Seat: undefined;
-  SeatSelection: undefined;
-  Payment: undefined;
-  BookingSuccess: undefined;
+  SeatSelection: any;
+  Payment: any;
+  BookingSuccess: any;
   BookingDetail: undefined;
   RoundTripFlight: undefined;
   OneTripFlight: undefined;

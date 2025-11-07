@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { User, Briefcase, Armchair, CreditCard, ShieldCheck } from 'lucide-react-native';
+import { useNavigation } from 'expo-router';
+import { User, Briefcase, Armchair, CreditCard, ShieldCheck, ChevronLeft } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { addBaggage} from '../redux/ordersSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function BaggageInformation() {
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const [checkedBag, setCheckedBag] = useState(true);
   const [insurance, setInsurance] = useState(false);
   const dispatch = useDispatch();
+
+    const orders = useSelector((state: any) => state.orders);
+
+    const totalPassengers = (Object.values(orders.passenger_details) as number[])
+    .reduce((sum, value) => sum + value, 0);
 
   const handleNext = () => {
     if(checkedBag){
@@ -18,7 +23,7 @@ export default function BaggageInformation() {
         type : "Max 22.1 lbs",
         price : 19.99
       }));
-      router.push('/pages/Seat');
+      navigation.navigate("Seat");
     }
   }
 
@@ -40,8 +45,8 @@ export default function BaggageInformation() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.push('/pages/TravellerInformation')}>
-              <Text style={styles.backButton}>←</Text>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+               <ChevronLeft color="#111827" size={30} />
             </TouchableOpacity>
             <View style={styles.stepIndicator}>
               <View style={[styles.stepIcon, styles.stepComplete]}>
@@ -171,8 +176,8 @@ export default function BaggageInformation() {
         {/* Footer nằm sau ScrollView */}
         <View style={styles.footer}>
           <View>
-            <Text style={styles.price}>$806</Text>
-            <Text style={styles.priceNote}>1 adult</Text>
+            <Text style={styles.price}>${orders.total_price}</Text>
+            <Text style={styles.priceNote}>{totalPassengers} adult</Text>
           </View>
           <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
             <Text style={styles.nextText}>Next</Text>
@@ -188,9 +193,9 @@ const styles = StyleSheet.create({
   wrapper: { flex: 1, justifyContent: 'space-between' },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 40 },
-  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15 },
+  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15, flexDirection: 'row', alignItems: 'center' },
   backButton: { fontSize: 22, color: '#111827', marginBottom: 15 },
-  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex : 1 },
   stepIcon: {
     width: 38,
     height: 38,

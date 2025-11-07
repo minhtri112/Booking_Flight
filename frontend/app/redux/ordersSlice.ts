@@ -7,12 +7,12 @@ const initialState = {
     cabin_class: "Economy",
     total_price: 0,
     type_trip: "",
-    phone : "",
-    contact_name : "",
-    payment_method : "",
-    baggage_option : {
-        type : "",
-        price : 0,
+    phone: "",
+    contact_name: "",
+    payment_method: "",
+    baggage_option: {
+        type: "",
+        price: 0,
     },
 
 };
@@ -44,7 +44,7 @@ const ordersSlice = createSlice({
             state.type_trip = "Round-trip";
         },
 
-        addAirportOneTrip : (state, action) => {
+        addAirportOneTrip: (state, action) => {
             state.flights = [];
             state.flights.push(
                 {
@@ -53,7 +53,7 @@ const ordersSlice = createSlice({
                     date: action.payload.date,
                 }
             );
-            
+
             state.type_trip = "One-way";
         },
 
@@ -82,16 +82,29 @@ const ordersSlice = createSlice({
             state.cabin_class = action.payload.cabin_class;
         },
 
-        addTraveller : (state, action) => {
+        addTraveller: (state, action) => {
             state.contact_name = action.payload.contact_name;
             state.phone = action.payload.phone;
         },
-        addBaggage : (state, action) => {
+        addBaggage: (state, action) => {
             state.baggage_option = action.payload;
+        },
+        addSeat: (state, action) => {
+            const { flightId, seats, seatPrice } = action.payload;
+
+            state.flights = state.flights.map((flight: any) => ({
+                ...flight,
+                path: flight.path.map((p: any) =>
+                    p._id === flightId
+                        ? { ...p, seats } 
+                        : p
+                ),
+            }));
+            state.total_price += seatPrice;
         }
 
     }
 });
 
-export const { addAirportRoundTrip, editOptions, addFlights,addAirportOneTrip ,addAirportMultiCity,addTraveller, addBaggage} = ordersSlice.actions
+export const { addAirportRoundTrip, editOptions, addFlights, addAirportOneTrip, addAirportMultiCity, addTraveller, addBaggage, addSeat } = ordersSlice.actions
 export default ordersSlice.reducer

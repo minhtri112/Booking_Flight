@@ -13,13 +13,14 @@ import FindAirportModel from '../components/FindAriportModel';
 import { showError } from '../components/Alter';
 import { useDispatch } from 'react-redux';
 import {addAirportMultiCity} from '../redux/ordersSlice';
-
+import Header from "../components/Header";
 
 type Flight = {
     from: string;
     to: string;
     date: string;
 };
+
 
 export default function MultiCityTripFlight() {
     const [flights, setFlights] = useState<Flight[]>([{ from: 'FROM', to: 'TO', date: new Date().toISOString() }]);
@@ -55,14 +56,8 @@ export default function MultiCityTripFlight() {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.closeButton}>
-                        <X size={24} color="#000" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Flight</Text>
-                    <View style={styles.placeholder} />
-                </View>
+                
+                <Header text="Flight" Icon={X} />
 
                 <View style={styles.tripTypeContainer}>
                     <ButtonTypeTrip tripName="Round-trip" tripTypeActive={tripType} onPress={() => navigation.navigate('RoundTripFlight')} />
@@ -140,28 +135,6 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 24,
-    },
-    closeButton: {
-        width: 40,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#000',
-    },
-    placeholder: {
-        width: 40,
     },
     tripTypeContainer: {
         flexDirection: 'row',

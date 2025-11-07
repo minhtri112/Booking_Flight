@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
-import { User, Briefcase, Armchair, CreditCard } from 'lucide-react-native';
+import { User, Briefcase, Armchair, CreditCard,ChevronLeft } from 'lucide-react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { showError } from '../components/Alter';
 import { addTraveller } from '../redux/ordersSlice';
@@ -36,7 +36,7 @@ export default function TravellerInformation() {
       return;
     }
     dispatch(addTraveller({ contact_name: `${firstName} ${lastName}`, phone : phone }));
-    navigation.navigate('Seat');
+    navigation.navigate('BaggageInformation');
   }
 
   return (
@@ -45,7 +45,7 @@ export default function TravellerInformation() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backButton}>←</Text>
+            <ChevronLeft color="#111827" size={30} />
           </TouchableOpacity>
 
           <View style={styles.stepIndicator}>
@@ -208,9 +208,9 @@ export default function TravellerInformation() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15 },
+  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15, flexDirection: 'row', alignItems: 'center' },
   backButton: { fontSize: 22, color: '#111827', marginBottom: 15 },
-  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex : 1 },
   stepIcon: {
     width: 38, height: 38, borderRadius: 19,
     backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center',

@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { editOptions } from "../redux/ordersSlice";
 import { ChevronLeft } from "lucide-react-native";
+import Header from '../components/Header';
 
 const cabinClasses = [
     "Economy",
@@ -16,6 +17,7 @@ const cabinClasses = [
     "Business",
     "First Class",
 ];
+
 
 export default function TravellerOptions() {
     const navigation = useNavigation<TypeNavigationProp>();
@@ -48,15 +50,10 @@ export default function TravellerOptions() {
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
 
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                        <ChevronLeft size={24} color="#111827" />
-                    </TouchableOpacity>
 
-                    <Text style={styles.headerTitle}>Traveller Options</Text>
+                <Header text="Traveller Options" Icon={ChevronLeft} />
 
-                    
-                </View>
+
 
 
                 <Text style={styles.sectionTitle}>Traveller</Text>
@@ -89,26 +86,7 @@ export default function TravellerOptions() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingRight: 20,
-        paddingTop: 20,
-        paddingBottom: 24,
-    },
-    backButton: {
-        width: 30,
-        height: 30,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#111827",
-        textAlign : 'center',
-        flex: 1,
-    },
+
     container: {
         flex: 1,
         backgroundColor: "#fff",

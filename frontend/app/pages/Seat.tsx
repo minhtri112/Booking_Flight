@@ -1,11 +1,42 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { User, Briefcase, Armchair, CreditCard } from 'lucide-react-native';
-import { SafeAreaView  } from 'react-native-safe-area-context';
+import { useNavigation } from 'expo-router';
+import { User, Briefcase, Armchair, CreditCard, ChevronLeft } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { TypeNavigationProp } from "../types/types";
+import { useSelector } from 'react-redux';
+import { showError } from "../components/Alter";
 
 export default function Seat() {
-  const router = useRouter();
+  const navigation = useNavigation<TypeNavigationProp>();
+
+  const orders = useSelector((state: any) => state.orders);
+  const totalSelected: number = (Object.values(orders?.passenger_details || {}) as number[])
+    .reduce((sum: number, v: number) => sum + (Number(v) || 0), 0);
+
+  const handleSelectSeat = (item: any) => {
+    navigation.navigate('SeatSelection', { flightId: item._id, departure: item.departure_airport_code, arrival: item.arrival_airport_code });
+  }
+
+  const onHandleNext = () => {
+    const selectAll = orders.flights.every((flight: any) => {
+      return flight?.path.every((item: any) => {
+        console.log("Checking seats for item:", item);
+        return item?.seats && item.seats.length > 0;
+      });
+    });
+
+    if (selectAll) {
+      navigation.navigate('Payment');
+      return;
+    }
+    else {
+      showError("Please select seats for all flights before proceeding.");
+    }
+  }
+
+
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -19,9 +50,10 @@ export default function Seat() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.backButton}>←</Text>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ChevronLeft color="#111827" size={30} />
             </TouchableOpacity>
+
             <View style={styles.stepIndicator}>
               <View style={[styles.stepIcon, styles.stepComplete]}>
                 <User color="#fff" size={18} />
@@ -41,52 +73,66 @@ export default function Seat() {
             </View>
           </View>
 
+      
+
           {/* Body */}
           <View style={{ paddingHorizontal: 20 }}>
             <Text style={styles.title}>Seat</Text>
             <Text style={styles.subTitle}>Select your preferred seat for each flight</Text>
 
-            {/* Flight Section 1 */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Flight to New York</Text>
-              <TouchableOpacity style={styles.flightCard} onPress={() => router.push('/pages/SeatSelection')}>
-                <View style={styles.flightInfo}>
-                  <Armchair color="#6B7280" size={22} />
-                  <View style={styles.flightDetails}>
-                    <Text style={styles.flightRoute}>LCY - JFK</Text>
-                    <Text style={styles.flightPrice}>Seats from $5.00</Text>
-                  </View>
-                </View>
-                <Text style={styles.selectLink}>Select</Text>
-              </TouchableOpacity>
-            </View>
 
-            {/* Flight Section 2 */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Flight to London</Text>
-              <TouchableOpacity style={styles.flightCard} onPress={() => router.push('/pages/SeatSelection')}>
-                <View style={styles.flightInfo}>
-                  <Armchair color="#6B7280" size={22} />
-                  <View style={styles.flightDetails}>
-                    <Text style={styles.flightRoute}>LCY - LHR</Text>
-                    <Text style={styles.flightPrice}>Seats from $4.59</Text>
+            {orders?.flights?.map((flight: any, index: number) => (
+              <View key={index}>
+                {flight?.path?.map((item: any, idx: number) => (
+                  <View style={styles.section} key={idx}>
+                    <Text style={styles.sectionTitle}>Flight to {item.arrival_airport_code}</Text>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.flightCard,
+                        item?.seats?.length > 0 && styles.flightCardSelected, // 🔥 Nếu có seats → tô viền xanh
+                      ]}
+                      onPress={() => handleSelectSeat(item)}
+                    >
+                      <View style={styles.flightInfo}>
+                        <Armchair color="#6B7280" size={22} />
+                        <View style={styles.flightDetails}>
+                          <Text style={styles.flightRoute}>
+                            {item.departure_airport_code} - {item.arrival_airport_code}
+                          </Text>
+                          <Text style={styles.flightPrice}>Seats from $5.00</Text>
+                          {item?.seats && item.seats.length > 0 && (
+                            <Text style={styles.selectedText}>
+                              Seat selected: {item.seats.join(", ")}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+
+
+
+                      <Text style={styles.selectLink}>Select</Text>
+                    </TouchableOpacity>
                   </View>
-                </View>
-                <Text style={styles.selectLink}>Select</Text>
-              </TouchableOpacity>
-            </View>
+                ))}
+              </View>
+            ))}
+
+
+
+
           </View>
         </ScrollView>
 
         {/* Footer cố định */}
         <View style={styles.footer}>
           <View>
-            <Text style={styles.price}>$806</Text>
-            <Text style={styles.priceNote}>1 adult</Text>
+            <Text style={styles.price}>${orders?.total_price || 0}</Text>
+            <Text style={styles.priceNote}>{totalSelected} adult</Text>
           </View>
           <TouchableOpacity
             style={styles.nextBtn}
-            onPress={() => router.push('/pages/SeatSelection')}
+            onPress={onHandleNext}
           >
             <Text style={styles.nextText}>Next</Text>
           </TouchableOpacity>
@@ -101,9 +147,9 @@ const styles = StyleSheet.create({
   wrapper: { flex: 1, justifyContent: 'space-between' },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 40 },
-  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15 },
+  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15, flexDirection: 'row', alignItems: 'center' },
   backButton: { fontSize: 22, color: '#111827', marginBottom: 15 },
-  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex : 1 },
   stepIcon: {
     width: 38,
     height: 38,
@@ -116,26 +162,36 @@ const styles = StyleSheet.create({
   stepComplete: { backgroundColor: '#00BCD4' },
   stepLine: { width: 28, height: 2, backgroundColor: '#E5E7EB' },
   stepLineActive: { backgroundColor: '#00BCD4' },
+
   title: { fontSize: 22, fontWeight: '700', color: '#111827', marginTop: 10 },
   subTitle: { fontSize: 15, color: '#4B5563', fontWeight: '500', marginVertical: 15 },
   section: { marginBottom: 25 },
   sectionTitle: { fontSize: 16, fontWeight: '600', color: '#111827', marginBottom: 10 },
+
   flightCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
     borderRadius: 8,
     backgroundColor: '#F9FAFB',
   },
+  // 🔹 Khi flight đã chọn ghế
+  flightCardSelected: {
+    borderColor: '#00BCD4',        // Viền xanh
+    backgroundColor: '#E0F7FA',    // Nền xanh nhạt
+  },
+
   flightInfo: { flexDirection: 'row', alignItems: 'center' },
   flightDetails: { marginLeft: 12 },
   flightRoute: { fontSize: 15, fontWeight: '500', color: '#1F2937', marginBottom: 3 },
   flightPrice: { fontSize: 13, color: '#6B7280' },
   selectLink: { fontSize: 14, fontWeight: '600', color: '#8B5CF6' },
+  selectedText: { fontSize: 13, color: '#0284C7', marginTop: 4, fontWeight: '500' },
+
   footer: {
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',

@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView, LayoutAnimation, Platform, UIManager } from 'react-native';
-import { useRouter } from 'expo-router';
-import { User, Briefcase, Armchair, CreditCard, Mail, Phone } from 'lucide-react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { useRouter,useNavigation } from 'expo-router';
+import { User, Briefcase, Armchair, CreditCard, Mail, Phone, ChevronLeft } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { TypeNavigationProp } from "../types/types";
+import { showError, showSuccess } from "../components/Alter";
+import { useSelector } from 'react-redux';
+import FetchApi from '../services/fetchAPI';
+import * as SecureStore from 'expo-secure-store';
 
 // Kích hoạt animation mượt cho Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -19,11 +24,81 @@ export default function Payment() {
     expiry: '',
     cvv: '',
   });
+  const orders = useSelector((state: any) => state.orders);
+  const [userId,setUserId] = useState("");
+  const navigation = useNavigation<TypeNavigationProp>();
+
+  const totalSelected: number = (Object.values(orders?.passenger_details || {}) as number[])
+    .reduce((sum: number, v: number) => sum + (Number(v) || 0), 0);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const token = await SecureStore.getItemAsync('token');
+      if(!token){
+        showError("You must be logged in to proceed to payment.");
+        navigation.navigate('Login');
+        return;
+      }
+      const user = await FetchApi.get(`accounts/${token}`);
+      if(user.data && user.data._id){
+        setUserId(user.data._id);
+      }
+      else {
+        showError("Failed to fetch user information. Please log in again.");
+        navigation.navigate('Login');
+      } 
+    }
+    fetchUserId();
+
+  },[navigation]);
+
 
   const toggleNewCardForm = () => {
     LayoutAnimation.easeInEaseOut();
     setShowNewCardForm(!showNewCardForm);
   };
+
+  const handleCheckout = () => {
+    let orderDetails : any = [];
+    let order = {
+      account_id : userId,
+      total_price : orders.total_price,
+      passenger_count : totalSelected,
+      passenger_details : orders.passenger_details,
+      contact_name : orders.contact_name,
+      baggage_option : orders.baggage_option,
+      phone : orders.phone,
+      type_trip : orders.type_trip,
+      payment_method : selectedMethod,
+    };
+    orders.flights.forEach((flight: any) => {
+      console.log("Flight ID:", flight._id);
+      flight.path.forEach((item: any) => {
+        orderDetails.push({id : item._id, seats : item.seats, price : item.ticket_price});
+        console.log("Selected seats for item:", item);
+      });
+    });
+
+    const handlePayment = async () => {
+       try{
+         const req = await FetchApi.post('flights/booking', {
+           orderDetails,
+           order
+         });
+         if(req.data){
+            showSuccess("Payment successful!");
+            navigation.navigate('BookingSuccess',{orderId: req.data._id});
+         }
+       }
+       catch(err){
+          console.error("Payment error:", err);
+          showError("Payment failed. Please try again.");
+          return;
+       }
+    }
+    handlePayment();
+
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -36,7 +111,7 @@ export default function Payment() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.backButton}>←</Text>
+              <ChevronLeft color="#111827" size={30} />
             </TouchableOpacity>
             <View style={styles.stepIndicator}>
               <View style={[styles.stepIcon, styles.stepComplete]}>
@@ -178,12 +253,12 @@ export default function Payment() {
         {/* Footer */}
         <View style={styles.footer}>
           <View>
-            <Text style={styles.price}>$811.56</Text>
-            <Text style={styles.priceNote}>1 adult</Text>
+            <Text style={styles.price}>${orders?.total_price || 0}</Text>
+            <Text style={styles.priceNote}>{totalSelected} person</Text>
           </View>
           <TouchableOpacity
             style={styles.nextBtn}
-            onPress={() => router.push('/pages/BookingSuccess')}
+            onPress={handleCheckout}
           >
             <Text style={styles.nextText}>Checkout</Text>
           </TouchableOpacity>
@@ -198,9 +273,9 @@ const styles = StyleSheet.create({
   wrapper: { flex: 1, justifyContent: 'space-between' },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 40 },
-  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15 },
+  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 15, flexDirection: 'row', alignItems: 'center' },
   backButton: { fontSize: 22, color: '#111827', marginBottom: 15 },
-  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: 1 },
   stepIcon: {
     width: 38,
     height: 38,
