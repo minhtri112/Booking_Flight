@@ -93,3 +93,37 @@ mkdir d:/LT_DT/Nhom17_BookingFlight/images
 
 Sau khi upload ảnh, README sẽ hiển thị trực tiếp sơ đồ trong GitHub/VSCode.
 
+## Screenshots thực tế (màn hình ứng dụng)
+
+Dưới đây là một số màn hình thực tế từ thư mục `image/flight_all_screens` để minh họa giao diện ứng dụng:
+
+- **Home / Destination Listing**
+
+  ![Home - Destination Listing](image/flight_all_screens/Home%20-%20Destination%20Listing.png)
+
+- **Tìm chuyến - One-Way**
+
+  ![Flight Searching - One-Way](image/flight_all_screens/Flight%20Searching%20-%20One-Way.png)
+
+- **Kết quả tìm kiếm**
+
+  ![Flight Booking - Search Results](image/flight_all_screens/Flight%20Booking%20-%20Search%20Results.png)
+
+- **Chi tiết chuyến bay**
+
+  ![Flight Details](image/flight_all_screens/Flight%20Details.png)
+
+- **Thông tin hành khách (Checkout)**
+
+  ![Checkout - Passenger Information](image/flight_all_screens/Checkout%20-%20Passenger%20Information.png)
+
+- **Thanh toán**
+
+  ![Checkout - Payment](image/flight_all_screens/Checkout%20-%20Payment.png)
+
+- **Thanh toán thành công**
+
+  ![Checkout - Payment Success](image/flight_all_screens/Checkout%20-%20Payment%20Success.png)
+
+> Ghi chú: nếu hình không hiển thị, kiểm tra đường dẫn và tên file trong `image/flight_all_screens`.
+
