@@ -69,7 +69,7 @@ Quy trình chính: Người dùng tìm kiếm chuyến bay → chọn chuyến p
 
 Chèn sơ đồ Use Case ở đây (nếu có file ảnh, đặt tên `images/usecase.png`).
 
-![Use Case](images/usecase.png)
+![Use Case](image/usecase.png)
 
 > Ghi chú: nếu hình không hiển thị, vui lòng tải ảnh `usecase.png` vào thư mục `Nhom17_BookingFlight/images`.
 
@@ -77,7 +77,7 @@ Chèn sơ đồ Use Case ở đây (nếu có file ảnh, đặt tên `images/us
 
 Sơ đồ lớp minh họa các thực thể chính: `Accounts`, `Airplane`, `Flight`, `Order`, `OrderDetails`, `Airport` cùng các mối quan hệ giữa chúng. (Nếu có ảnh, đặt tên `images/class_diagram.png`).
 
-![Class Diagram](images/class_diagram.png)
+![Class Diagram](image/class_diagram.png)
 
 > Ghi chú: nếu hình không hiển thị, vui lòng tải ảnh `class_diagram.png` vào thư mục `Nhom17_BookingFlight/images`.
 
