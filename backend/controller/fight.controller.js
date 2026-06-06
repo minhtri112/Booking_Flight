@@ -22,6 +22,8 @@ module.exports.oneWayFight = async (req, res) => {
             });
          }
       }
+      // Sort by price ascending
+      result.sort((a, b) => a.totalPrice - b.totalPrice);
 
       res.json(
          {

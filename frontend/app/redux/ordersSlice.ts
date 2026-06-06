@@ -58,6 +58,7 @@ const ordersSlice = createSlice({
         },
 
         addAirportMultiCity: (state, action) => {
+            console.log("Action payload in slice:", action.payload);
             state.flights = [];
             action.payload.forEach((flight: any) => {
                 state.flights.push({

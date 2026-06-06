@@ -104,7 +104,7 @@ export default function FindAirportModal({ visible, onClose, title, currentFrom,
         </View>
 
         <View style={styles.containerSearch}>
-          <View style={styles.inputWrapper}>
+          <View style={styles.inputWrapper}> 
             <Plane size={20} color="#00BDD6" style={styles.inputIcon} />
             <TextInput
               onFocus={() => { setSelectedAirportFrom(false) }}

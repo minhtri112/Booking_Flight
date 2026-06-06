@@ -12,7 +12,7 @@ import { useState } from 'react';
 import FindAirportModel from '../components/FindAriportModel';
 import { showError } from '../components/Alter';
 import { useDispatch } from 'react-redux';
-import {addAirportMultiCity} from '../redux/ordersSlice';
+import { addAirportMultiCity } from '../redux/ordersSlice';
 import Header from "../components/Header";
 
 type Flight = {
@@ -56,7 +56,7 @@ export default function MultiCityTripFlight() {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                
+
                 <Header text="Flight" Icon={X} />
 
                 <View style={styles.tripTypeContainer}>
@@ -70,10 +70,10 @@ export default function MultiCityTripFlight() {
                     {
                         flights.map((item, index) => {
                             return (
-                                <>
+                                <View key={index} >
                                     <View style={styles.locationContainer}>
-                                        <ButtonSearchAirport textName={item.from} Icon={Plane} onPress={() => {setVisibleAirport(true); setIndexFlight(index)}} />
-                                        <ButtonSearchAirport textName={item.to} Icon={PlaneLanding} onPress={() => {setVisibleAirport(true); setIndexFlight(index)}} />
+                                        <ButtonSearchAirport textName={item.from} Icon={Plane} onPress={() => { setVisibleAirport(true); setIndexFlight(index) }} />
+                                        <ButtonSearchAirport textName={item.to} Icon={PlaneLanding} onPress={() => { setVisibleAirport(true); setIndexFlight(index) }} />
                                     </View>
 
                                     <View style={styles.dateContainer}>
@@ -88,14 +88,14 @@ export default function MultiCityTripFlight() {
                                                     : 'Depart'
                                             }
                                             date={item.date ? new Date(item.date) : null}
-                                            setDate={(date : any) => {
+                                            setDate={(date: any) => {
                                                 const newFlights = [...flights];
                                                 newFlights[index].date = date ? date.toISOString() : new Date().toISOString();
                                                 setFlights(newFlights);
                                             }}
                                         />
                                     </View>
-                                </>
+                                </View>
                             );
                         })
                     }
@@ -119,7 +119,7 @@ export default function MultiCityTripFlight() {
                 title="Select Airport"
                 currentFrom=""
                 currentTo=""
-                setFlights ={setFlights}
+                setFlights={setFlights}
                 index={indexFlight}
                 flights={flights}
             />
